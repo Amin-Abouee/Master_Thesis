@@ -1,8 +1,21 @@
+%!TEX root = main.tex
 \chapter{Introduction}\label{chapter:introduction}
+Mankind always have been pursued to find their location and position in world correctly. By advancement of science and using of new electronic devices, this requirement have been resolved. Generally for locating, we need a reference point as origin or (0,0,0) to express the location of an object in every moment relative to this reference. This procedure will be more complicated when the desire object has pace. To estimate the position of moving object in each time unit, The difference of displacement, is calculated and updated.\\
+Augmented Reality (AR) is a new technology that aims to generate a composite view for users. This view is a combination of the real view that user can see it and a virtual view such as graphics, sounds or animations which generates by computer. To augment the additional information to the real world, the geometry relation between the world and camera is necessary. These geometry relations that describes the position of camera relative to reference point in every moment is called tracking.\\
+Tracking an object is a fundamental part of Augmented Reality (AR). Tracking means finding the location of an object or camera when they have movement in a sequence of frames relative to a reference point. Based on the AR application and degree of freedom of the object and the camera, there are two main tracking approaches:
+
+\begin{itemize}
+\item 2D Tracking: Estimate a 2D transformation which describes the 3D displacement of image projection of objects or a part of objects.
+\item 3D Tracking: Identify the camera rotation and translation relative to the scene. It contains of 3 degrees of freedom for rotation and 3 degree for translation.
+\end{itemize}
+
+Due to the target applications and existence of so many mathematic approaches for solving the 3D tracking using a single camera, research in this field is substantially huge. marker-based and marker-less natural features-based techniques, are two methods to find out the position of camera or 3D objects tracking.\\
+In this master's thesis, we developed a new and novel approach rely on the marker-less natural features-based to track the moving of a monocular camera. We assume the whole world is static except of camera. For the first phase of natural feature 3D tracking, feature points matching between each two sequence frames is critical and essential. An innovative method is developed, called robust feature matching, that extremely decrease the number of mismatching feature points. The other novelty of this master thesis that is unique and implemented for the first time is grouping the input images into the small size groups called bundles. Using of bundles (usually 5 frames) instead of a single frame increase significantly the accuracy of camera pose estimation. The result of this master's thesis is comparable with the state-of-the-art approaches in 3D tracking.\\
+
 
 \section{Related Work}
-Citation test \cite{latex}
-Test for second cite \cite{klein07parallel}
+Citation test \cite{klein2007parallel}
+Test for second cite
 
 \subsection{Subsection}
 See~\autoref{fig:sample}.
