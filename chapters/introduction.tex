@@ -29,7 +29,7 @@ As it was mentioned in introduction, There are two major methods for 3D tracking
 For the natural-based 3D Tracking, The whole literature in this subject can be organized into two big families regarding to the properties of image's features that we want to use.
 \begin{itemize}
 \item Edge-Based methods investigate on the areas with the highest value of gradient that represents edges. These methods try to make an accurate match between the projection of 3D edges in the real world and these gradient points. RAPID (SITE), Explicit Edge Extraction and Direct Optimization on Gradient are some algorithms in this area. 
-http://en.wikipedia.org/wiki/Feature_detection_(computer_vision) for example.
+% http://en.wikipedia.org/wiki/Feature_detection_(computer_vision) for example.
 \item The other methods investigate on the information that can be extracted directly from the pixels of image. It can be derived from optical flow, template matching and interest points techniques.
 \end{itemize}
 
@@ -39,11 +39,20 @@ In the case of similarity, both Edge-Based and Interest Point-Based techniques r
 After that in this master thesis, instead of interest points, we used of feature points term.
 
 \subsection{Feature Point Detection and Extraction}
-Comparing the all pixels of two or more images, one by one is really difficult and complicated. instead of this approach, some unique interest points are extracted (feature detection) from images and then coded into a binary string or a float number (feature extraction) and called the feature descriptor. For detection the features points, attention to some properties of points should be considered as follow: [40]
-1. The feature points represented by a surrendered patch around the center. This patch should be textured.
-2. Two neighbor feature points, should be different.
-3. Two almost similar feature points (usually neighbor or from same pattern) should be ignored.
-4. The feature selection operation, should be had the same result and performance in all images. It means if a point was selected as a feature point in one section of image, it also should be selected as a feature point in the same section but in different images.
+Comparing the all pixels of two or more images, one by one is really difficult and complicated. instead of this approach, some unique interest points are extracted (feature detection) from images and then coded into a binary string or a float number (feature extraction) and called the feature descriptor. For detection the features points, attention to some properties of points should be considered as follow: \cite{forstner1986feature}
+\begin{enumerate}
+  \item The feature points represented by a surrendered patch around the center. This patch should be textured.
+  \item Two neighbor feature points, should be different.
+  \item Two almost similar feature points (usually neighbor or from same pattern) should be ignored.
+  \item The feature selection operation, should be had the same result and performance in all images. It means if a point was selected as a feature point in one section of image, it also should be selected as a feature point in the same section but in different images.
+\end{enumerate}
+For the first time, Harris and Stephen \cite{harris1988combined} introduced a new method for feature detection regarding to fact that corner feature point represent a variation in the gradient of a point in two direction. they were looked for this variation.\\
+Presently, with knowledge expansion in computer vision community, So many techniques were developed that are useful based on the situation of images. Some of the most versatile and popular feature detector are:
+\begin{itemize}
+\item SIFT \cite{lowe2004distinctive} based of difference of Gaussians (DoG).
+\item SURF \cite{bay2006surf} is an instance of 2D Haar wavelet.
+\item FAST \cite{rosten2010faster} use of heuristic model for feature point and machine learning.
+\end{itemize}
 
 \begin{figure}[htsb]
   \centering
