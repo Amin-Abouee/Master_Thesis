@@ -12,13 +12,38 @@ Tracking an object is a fundamental part of Augmented Reality (AR). Tracking mea
 Due to the target applications and existence of so many mathematic approaches for solving the 3D tracking using a single camera, research in this field is substantially huge. marker-based and marker-less natural features-based techniques, are two methods to find out the position of camera or 3D objects tracking.\\
 In this master's thesis, we developed a new and novel approach rely on the marker-less natural features-based to track the moving of a monocular camera. We assume the whole world is static except of camera. For the first phase of natural feature 3D tracking, feature points matching between each two sequence frames is critical and essential. An innovative method is developed, called robust feature matching, that extremely decrease the number of mismatching feature points. The other novelty of this master thesis that is unique and implemented for the first time is grouping the input images into the small size groups called bundles. Using of bundles (usually 5 frames) instead of a single frame increase significantly the accuracy of camera pose estimation. The result of this master's thesis is comparable with the state-of-the-art approaches in 3D tracking.\\
 
-
 \section{Related Work}
-Citation test \cite{klein2007parallel}
-Test for second cite
+\subsection{PTAM}
+Georg Klein and David Murry \cite{klein2007parallel} proposed a method of estimating the pose (rotation and translation) of a hand-held camera without any prior knowledge about an small AR environment. The idea was adapted from SLAM algorithms in robotic or SFM in computer vision with a novelty in implementation. Both SLAM and SFM usually can be divided into two major tasks:
+\begin{itemize}
+\item Tracking: Track the motion of hand-held camera robustly.
+\item Mapping: Produce a 3D feature points from environment that are seen from camera. This 3D World is used for increase the accuracy of tracking task.
+\end{itemize}
+The key difference of PTAM algorithm compare to the simple SLAM and SFM is that uses of two parallel processing thread for executing the tracking and mapping tasks. This allows them to do this operation in the real-time.\\
 
-\subsection{Subsection}
-See~\autoref{fig:sample}.
+\subsection{Ubitrack Framework}
+Ubitrack Framework is an open source framework for Augmented Reality. It was developed by Fachgebiet Augmented Reality chair (FAR) of the computer science faculty at Technical University of Munich.
+
+\chapter{Robust Feature Matching}\label{chapter:Robust Feature Matching}
+As it was mentioned in introduction, There are two major methods for 3D tracking. Marker-based 3D tracking system, requires the marker and knowledge about the environment to estimate the pose of camera. Some times due to some restriction about the environment (e.g. outdoor environment) and tracking situation, this task is hard or is impossible. Hence, it is better to rely on the features that naturally are extracted from images. It is notable in this approach, more meta informations such as a model of scene object, a set of planer parts and some information about the camera is necessary. To make this procedure independent of 3D scene models, Vincent lepetit and Pascal Fua \cite{lepetit2005monocular} introduced a method that can explorer simultaneously both camera trajectory (tracking) and 3D world map of environment (mapping). \\
+For the natural-based 3D Tracking, The whole literature in this subject can be organized into two big families regarding to the properties of image's features that we want to use.
+\begin{itemize}
+\item Edge-Based methods investigate on the areas with the highest value of gradient that represents edges. These methods try to make an accurate match between the projection of 3D edges in the real world and these gradient points. RAPID (SITE), Explicit Edge Extraction and Direct Optimization on Gradient are some algorithms in this area. 
+http://en.wikipedia.org/wiki/Feature_detection_(computer_vision) for example.
+\item The other methods investigate on the information that can be extracted directly from the pixels of image. It can be derived from optical flow, template matching and interest points techniques.
+\end{itemize}
+
+\section{Interest Point Method (Corner-Based)}
+Despite of Edge-Based methods that need a overall view of the whole image to find the high gradient points and contours,(global view), The interest point-based methods just use of localized features. The difference key between these two approaches is, an interest point is a intersection of two edges that represents a point in which the direction of these two edges changed. Consequently, the gradient of this point have a huge amount in both direction and this property help to can be detected easily.\\
+In the case of similarity, both Edge-Based and Interest Point-Based techniques rely on the matching the features among the frames independent of other points. They also can handle the partial occlusions and matching errors problems and are invariant to change of illumination. The advantage of interest point-based methods compared to edge-based methods is that they do not get confused by background clutter. Generally interest points must be uniquely recognizable between all image pixels.\\
+After that in this master thesis, instead of interest points, we used of feature points term.
+
+\subsection{Feature Point Detection and Extraction}
+Comparing the all pixels of two or more images, one by one is really difficult and complicated. instead of this approach, some unique interest points are extracted (feature detection) from images and then coded into a binary string or a float number (feature extraction) and called the feature descriptor. For detection the features points, attention to some properties of points should be considered as follow: [40]
+1. The feature points represented by a surrendered patch around the center. This patch should be textured.
+2. Two neighbor feature points, should be different.
+3. Two almost similar feature points (usually neighbor or from same pattern) should be ignored.
+4. The feature selection operation, should be had the same result and performance in all images. It means if a point was selected as a feature point in one section of image, it also should be selected as a feature point in the same section but in different images.
 
 \begin{figure}[htsb]
   \centering
