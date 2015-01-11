@@ -105,18 +105,21 @@ Except of the original authors implementation in \url{https://github.com/pablofd
 \section {Feature Point Matching}
 For pose estimation, we need to find out a match set of feature points ${m_i}$ and ${m_j}$ which extracted from two successive images with similar view points. The classical technique proposed by Zhan et al. \cite{zhang1995robust}. technique works as follow. At first, for each feature point ${m_i}$ in the first image, it searches for a such ${m_j}$ feature point in the same location of ${m_i}$ but in the second image. The search is relied on the similarity of local image windows centered on the points, which strongly characterizes the points when the images are sufficiently close. The measure for similarity is zero-normalized cross-correlation that is invariant to affine change of the local image intensities and make the procedure robust to illumination changes. To make robust match, the reverse previous procedure is applied from second image to first image. Only the correspondences ${m_i} \longleftrightarrow {m_j}$ between points that close each other are kept.\\
 KLT (Kanade-Lucas-Tomasi) tracker \cite{tomasi1991detection} \cite{shi1994good} is another approach to track the feature points across the images. It uses of optical flow to find out the location of feature in following image. Both approaches have their strengths: KLT handles continuity better and keeps tracking points that cannot be detected as interest points. By contrast, performing detection in every frame naturally handles the appearance and disappearance of interest points due to aspect changes and occlusions.
-% \begin{table}[h]
-%   \caption[Example table]{An example for a simple table.}\label{tab:sample}
-%   \centering
-%   \begin{tabular}{l l l l}
-%     \toprule
-%       A & B & C & D \\
-%     \midrule
-%       1 & 2 & 1 & 2 \\
-%       2 & 3 & 2 & 3 \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
+
+\section {Our Method}
+One of the critical part on this master thesis is implementation a robust and accurate feature matching procedure, because the rest phases are completely depend to one. The result of two well-known approaches ,which introduced in previous section, were not perfect that we wanted. Therefore we investigate on a multi layer matcher that remove outliers as well.\\
+This novel feature matching consists of 4 consecutive phases that was implemented by OpenCV Ver 3.0 library and Ubitrck Framework. In this recipe, we solve the feature point matching problem and we will explain how to exploit the epipolar constraint between two views to match image features more reliably.\\
+The principle we will follow is simple: when we match feature points between two images, we only accept those matches that fall onto the corresponding epipolar lines. However, to be able to check this condition, the fundamental matrix must be known, and we need good matches to estimate this matrix. 
+As following, each step describe briefly:
+\begin {enumerate}
+  \item Brute Force Matching: The first step is simply detecting the feature point and computing their descriptors. Next, we proceed to feature matching using the cv::BruteForceMatcher class as we did in the previous chapter. However, this time we find the two best matching points for each feature (and not only the best one as we did in the previous recipe). This is accomplished by the cv::BruteForceMatcher::knnMatch method (with k=2). Moreover, we perform this matching in two directions, that is, for each point in the first image we find the two best matches in the second image, and then we do the same thing for the feature points of the second image, finding their two best matches in the first image.\\
+  The binary descriptors of A-KAZE are matched in a brute force manner with efficient evaluation of the Hamming distance.
+  Hamming distance which is computationally cheap on modern architectures with efficient binary XOR and population count instructions.
+  \item Nearest Neighbor (Ratio Test) Matching: The second well-known outlier-removal technique is the ratio test. In this phase, for each feature point, we have two candidate matches in the other view. These are the two best ones based on the distance between their descriptors. If this measured distance is very low for the best match, and much larger for the second best match, we can safely accept the first match as a good one since it is unambiguously the best choice. Reciprocally, if the two best matches are relatively close in distance, then there exists a possibility that we make an error if we select one or the other. In this case, we should reject both matches. Here, we perform this test in step 3 by verifying that the ratio of the distance of the best match over the distance of the second best match is not greater than a given threshold. A large number of ambiguous matches will be eliminated by this procedure. After several execution of this method, the best threshold found as 0.8.
+  \item Symmetric Matching: We now have two relatively good match sets, one from the first image to second image and the other one from second image to the first one. From these sets, we will now extract the matches that are in agreement with both sets. This is the symmetrical matching scheme imposing that, for a match pair to be accepted, both points must be the best matching feature of the other.
+  \item Epipolar Constraint Matching: The last phase now consists of an additional filtering test that will this time use the fundamental matrix in order to reject matches that do not obey the epipolar constraint. This test is based on the RANSAC method that can compute the fundamental matrix even when outliers are still present in the match set. For this one When using the cv::findFundamentalMat function with Ransacs, two extra parameters are provided. The first one is the confidence level that determines the number of iterations to be made. The second one is the maximum distance to the epipolar line for a point to be considered as an inlier. All matched pairs in which a point is at a distance from its epipolar line larger than the one specified will be reported as an outlier. Therefore, the function also returns a std::vector of char value indicating that the corresponding match has been identified as an outlier (0) or as an inlier (1). The inlier points regarding to this mask array and input points from symmetric matching are selected as the final vector in structure of cv::DMatch. This vector illustrate the robust feature match between an image pair.
+\end {enumerate}
+
 
 % See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
 
