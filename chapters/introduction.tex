@@ -60,103 +60,108 @@ In computer vision community, a feature point or interest point also called keyp
 Once feature points are located, we are interested in describing the image patch with a robust feature vector. The most well-known descriptor was proposed in SIFT \cite{lowe2004distinctive}. A 128-dimensional vector is obtained from a grid of histogram. It was a powerful descriptor and robustness to illumination and change of view. The other approach that is wildly used at moment is SURF \cite{bay2006surf}. Its idea based on local gradient histogram and it has similar performance as SIFT. The point of SURF algorithm is that it can be run more faster with less memory as SIFT algorithm. Both of these approaches describe a keypoint with a long vector of float number in which SIFT with 128-dimensional and SURF with 64 and 128-dimensional.\\
 In 2010, Calonder \textit{et al.} in \cite{calonder2010brief} showed that it is possible to decrease the dimensionality a feature descriptor by directly building a short binary descriptor in which each bits are independent. This new algorithm called BRIEF. using of Hamming distance (bitwise XOR) instead of Euclidean distance is an advantage point for binary descriptors. The negative point of BRIEF algorithm was that the result descriptor is not invariant to scale and rotation change. After that both BRISK \cite{leutenegger2011brisk} and FREAK \cite{alahi2012freak} were developed that are state-of-the-art algorithms rely on binary descriptors and also invarient to scale and rotation. BRISK and FREAK are inspired by intensity comparisons around a keypoint and human visual system (especially retina) respectively.
 
-\section {KAZE and A-KAZE}
-In this master thesis we were looking for a best feature descriptor that should be invariant to brightness, scale, rotation and robustness to blur. Between all feature detectors and extractors that already mentioned here, The KAZE (Japanese word meaning \emph{wind}) and especially A-KAZE (Accelerated-KAZE) feature detector and extractor was selected.\\
-KAZE \cite{alcantarilla2012kaze} feature is a new 2D multi-scale feature detection and description that its algorithm rely on nonlinear scale space. Previous methods such as SIFT or SURF find features in the Gaussian scale space (particular instance of linear diffusion). However, Gaussian blurring does not respect the natural boundaries of objects and smoothes in the same degree details and noise when evolving the original image through the scale space.\\
+\subsection {KAZE and A-KAZE}
+In this master thesis we were looking for a best feature descriptor that should be invariant to brightness, scale, rotation and robustness to blur. Between all feature detectors and extractors that already mentioned here, The KAZE (Japanese word meaning \emph{wind}) and especially A-KAZE (Accelerated-KAZE) feature detector and extractor was selected. Right now it has the best result among all algorithms in this subject. The structure of its descriptor is binary and is added to the new version of OpenCV 3.0 \footnote{\url{http://docs.opencv.org/trunk/modules/features2d/doc/feature_detection_and_description.html}}.
+KAZE \cite{alcantarilla2012kaze} feature is a new 2D multi-scale feature detection and description that its algorithm rely on nonlinear scale space. Previous methods such as SIFT or SURF find features in the Gaussian scale space (particular instance of linear diffusion). However, Gaussian blurring does not respect the natural boundaries of objects and smooths in the same degree details and noise when evolving the original image through the scale space.\\
 By means of nonlinear diffusion we can detect and describe features in nonlinear scale spaces keeping important image details and removing noise as long as we evolve the image in the scale space. We use variable conductance diffusion which is one of the simplest cases of nonlinear diffusion. The nonlinear scale space is build efficiently by means of Additive Operator Splitting (AOS) schemes, which are stable for any step size and are parallelizable.\\
 A-KAZE \cite{alcantarilla2011fast} Features uses a novel mathematical framework called Fast Explicit Diffusion (FED) embedded in a pyramidal framework to speed-up dramatically the nonlinear scale space computation. In addition, we compute a robust Modified-Local Difference Binary (M-LDB) descriptor that exploits gradient information from the nonlinear scale space. A-KAZE obtains comparable results to KAZE in some datasets, while being several orders of magnitude faster.\\
-Despite of moderate increase in computational time, especially compare to SURF, but the Kaze feature algorithms is a forward step in performance and accuracy for both detection and description against prevoius state-of-the-art algoriethms such as SURF, SIFT, BRISK and FREAK.
+Despite of moderate increase in computational time, especially compare to SURF, but the AKZE feature algorithms is a forward step in performance and accuracy for both detection and description against previous state-of-the-art algorithms such as SURF, SIFT, BRISK and FREAK.
 The below graphs are taken form computer-vision-talks weblog \footnote{\url{http://computer-vision-talks.com/articles/2013-03-17-porting-kaze-features-to-opencv/}} and prepared by OpenCV Comparison Tool \footnote{\url{https://github.com/BloodAxe/OpenCV-Features-Comparison}}. It compare the KAZE feature with the other well-known algorithms from several aspects of invariantly such as rotation, scale and brittleness and robustness to blur. As you can see, in all cases, the result of KAZE in much better.
 
-\begin{figure}[htsb]
+\begin{figure}[ht]
 \begin{tabular}{cc}
-  \includegraphics[width=75mm]{figures/Rotation_KAZE} &   \includegraphics[width=75mm]{figures/Scale_KAZE} \\
+  \includegraphics[width=75mm]{figures/rotation_KAZE} &  \includegraphics[width=75mm]{figures/scale_KAZE} \\
 (a) Rotation Test & (b) Scale Invariance \\[6pt]
- \includegraphics[width=75mm]{figures/Brightness_KAZE} &   \includegraphics[width=75mm]{figures/Blur_KAZE} \\
-(c) Brithness Invariance & (d) Robustness to Blur \\[6pt]
+ \includegraphics[width=75mm]{figures/brightness_KAZE} &  \includegraphics[width=75mm]{figures/blur_KAZE} \\
+(c) Brittleness Invariance & (d) Robustness to Blur \\[6pt]
 \end{tabular}
 \caption{The comparison of KAZE and other well-know feature descriptions}\label{fig:compare_kaze}
 \end{figure}
 
+As we mentioned in the definition of A-KAZE, it uses of two new algorithms (FED and M-LDB) and consequently the computation cost for deception and description decrease dramatically. It also extends to support four different type of extracted descriptor [] depend on image properties. In the next graph, A comparison between four top binary descriptors, A-KAZE, KAZE, BRISK, FREAK, was prepared by computer-vision-talks weblog. All algorithms tested for variety of environments and invariantly to scale, brittleness and robustness to blur.
+$$(Descriptor_KAZE, Descriptor_KAZE_upright, Descriptor_MLDB and Descriptor_MLDB_upright)$$
 
-
-\begin{figure}[htsb]
-  \centering
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}[node distance=3cm]
-    \node (R0) {$R_1$};
-    \node (R1) [right of=R0] {$R_2$};
-    \node (R2) [below of=R1] {$R_4$};
-    \node (R3) [below of=R0] {$R_3$};
-    \node (R4) [right of=R1] {$R_5$};
-
-    \path[every node]
-      (R0) edge (R1)
-      (R0) edge (R3)
-      (R3) edge (R2)
-      (R2) edge (R1)
-      (R1) edge (R4);
-  \end{tikzpicture}
-  \caption[Example drawing]{An example for a simple drawing.}\label{fig:sample-drawing}
+\begin{figure}[ht]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/brithness_akaze} &  \includegraphics[width=75mm]{figures/scale_akaze} \\
+(a) Brittleness Invariance & (b) Scale Invariance \\[6pt]
+\multicolumn{2}{c}{\includegraphics[width=75mm]{figures/blur_akaze} }\\
+\multicolumn{2}{c}{(e) Robustness to Blur}
+\end{tabular}
+\caption{The comparison between KAZE and A-KAZE}\label{fig:compare_kaze_and_A-kaze}
 \end{figure}
 
-\begin{table}[htsb]
-  \caption[Example table]{An example for a simple table.}\label{tab:sample}
-  \centering
-  \begin{tabular}{l l l l}
-    \toprule
-      A & B & C & D \\
-    \midrule
-      1 & 2 & 1 & 2 \\
-      2 & 3 & 2 & 3 \\
-    \bottomrule
+Except of the original authors implementation in \url{https://github.com/pablofdezalc/akaze}, both KAZE and A-KAZE are ported to the new version of OpenCV 3.0 and boosted by OpenCL. In this master thesis, the A-KAZE implementation of OpenCV is used for both feature detection and description. The parameters of A-KAZE optimized based of our requirement and listed as below table:
+
+\begin{table}[ht]
+  \caption{A-KAZE value parameters in OpenCV 3.0}
+  \begin{tabular}{| c | c | c | c | c | c | c |}
+      \hline
+      descriptor type & descriptor size & descriptor channels & threshold & octaves & sublevels & diffusivity \\ \hline \hline
+      Descriptor dump & Full & 3 & 0.001 & 4 & 4 & dump \\ \hline
   \end{tabular}
 \end{table}
 
-See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
+\section {Feature Point Matching}
+For pose estimation, we need to find out a match set of feature points ${m_i}$ and ${m_j}$ which extracted from two successive images with similar view points. The classical technique proposed by Zhan et al. \cite{zhang1995robust}. technique works as follow. At first, for each feature point ${m_i}$ in the first image, it searches for a such ${m_j}$ feature point in the same location of ${m_i}$ but in the second image. The search is relied on the similarity of local image windows centered on the points, which strongly characterizes the points when the images are sufficiently close. The measure for similarity is zero-normalized cross-correlation that is invariant to affine change of the local image intensities and make the procedure robust to illumination changes. To make robust match, the reverse previous procedure is applied from second image to first image. Only the correspondences ${m_i} \longleftrightarrow {m_j}$ between points that close each other are kept.\\
+KLT (Kanade-Lucas-Tomasi) tracker \cite{tomasi1991detection} \cite{shi1994good} is another approach to track the feature points across the images. It uses of optical flow to find out the location of feature in following image. Both approaches have their strengths: KLT handles continuity better and keeps tracking points that cannot be detected as interest points. By contrast, performing detection in every frame naturally handles the appearance and disappearance of interest points due to aspect changes and occlusions.
+% \begin{table}[h]
+%   \caption[Example table]{An example for a simple table.}\label{tab:sample}
+%   \centering
+%   \begin{tabular}{l l l l}
+%     \toprule
+%       A & B & C & D \\
+%     \midrule
+%       1 & 2 & 1 & 2 \\
+%       2 & 3 & 2 & 3 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
 
-\begin{figure}[htsb]
-  \centering
+% See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
 
-  \pgfplotstableset{col sep=&, row sep=\\}
-  % This should probably go into a file in data/
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1000 \\
-    2 & 1500 \\
-    3 & 1600 \\
-  }\exampleA
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1200 \\
-    2 & 800 \\
-    3 & 1400 \\
-  }\exampleB
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}
-    \begin{axis}[
-        ymin=0,
-        legend style={legend pos=south east},
-        grid,
-        thick,
-        ylabel=Y,
-        xlabel=X
-      ]
-      \addplot table[x=a, y=b]{\exampleA};
-      \addlegendentry{Example A};
-      \addplot table[x=a, y=b]{\exampleB};
-      \addlegendentry{Example B};
-    \end{axis}
-  \end{tikzpicture}
-  \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
-\end{figure}
+% \begin{figure}[htsb]
+%   \centering
 
-\begin{figure}[htsb]
-  \centering
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=SQL]
-    SELECT * FROM tbl WHERE tbl.str = "str"
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
-\end{figure}
+%   \pgfplotstableset{col sep=&, row sep=\\}
+%   % This should probably go into a file in data/
+%   \pgfplotstableread{
+%     a & b    \\
+%     1 & 1000 \\
+%     2 & 1500 \\
+%     3 & 1600 \\
+%   }\exampleA
+%   \pgfplotstableread{
+%     a & b    \\
+%     1 & 1200 \\
+%     2 & 800 \\
+%     3 & 1400 \\
+%   }\exampleB
+%   % This should probably go into a file in figures/
+%   \begin{tikzpicture}
+%     \begin{axis}[
+%         ymin=0,
+%         legend style={legend pos=south east},
+%         grid,
+%         thick,
+%         ylabel=Y,
+%         xlabel=X
+%       ]
+%       \addplot table[x=a, y=b]{\exampleA};
+%       \addlegendentry{Example A};
+%       \addplot table[x=a, y=b]{\exampleB};
+%       \addlegendentry{Example B};
+%     \end{axis}
+%   \end{tikzpicture}
+%   \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
+% \end{figure}
+
+% \begin{figure}[htsb]
+%   \centering
+%   \begin{tabular}{c}
+%   \begin{lstlisting}[language=SQL]
+%     SELECT * FROM tbl WHERE tbl.str = "str"
+%   \end{lstlisting}
+%   \end{tabular}
+%   \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
+% \end{figure}
