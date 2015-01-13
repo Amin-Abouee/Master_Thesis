@@ -1,0 +1,184 @@
+Test Brute Force:
+1-3
+
+Bikes:
+Match Size: 1825 correct Match: 1123
+Rate: 0.615342
+Time: 151.445 ms
+
+Bark:
+Match Size: 1053 correct Match: 108
+Rate: 0.102564
+Time: 65.602 ms
+
+Graffiti:
+Match Size: 2947 correct Match: 510
+Rate: 0.173057
+Time: 637.152 ms
+
+Boat:
+Match Size: 5891 correct Match: 1456
+Rate: 0.247157
+Time: 1716.15 ms
+
+Leuven
+Match Size: 1843 correct Match: 833
+Rate: 0.45198
+Time: 122.205 ms
+
+UBC:
+Match Size: 2937 correct Match: 2576
+Rate: 0.877085
+Time: 638.884 ms
+
+Test NN:
+1-3
+
+Bikes:
+Match Size: 1181 correct Match: 1069
+Rate: 0.905165
+Time: 151.744 ms
+
+Bark:
+Match Size: 147 correct Match: 83
+Rate: 0.564626
+Time: 65.276 ms
+
+Graffiti:
+Match Size: 369 correct Match: 191
+Rate: 0.517615
+Time: 629.011 ms
+
+Boat:
+Match Size: 1648 correct Match: 1183
+Rate: 0.71784
+Time: 1682.89 ms
+
+Leuven:
+Match Size: 952 correct Match: 791
+Rate: 0.830882
+Time: 121.847 ms
+
+UBC:
+Match Size: 2548 correct Match: 2497
+Rate: 0.979984
+Time: 527.787 ms
+
+Test Symmetric:
+1-3
+
+Bikes:
+Match Size: 1054 correct Match: 1034
+Rate: 0.981025
+Time: 151.983 ms
+
+Bark:
+Match Size: 87 correct Match: 68
+Rate: 0.781609
+Time: 64.549 ms
+
+Graffiti:
+Match Size: 190 correct Match: 114
+Rate: 0.6
+Time: 635.564 ms
+
+Boat:
+Match Size: 1316 correct Match: 1101
+Rate: 0.836626
+Time: 1684.69 ms
+
+Leuven:
+Match Size: 785 correct Match: 745
+Rate: 0.949045
+Time: 122.429 ms
+
+UBC:
+Match Size: 2485 correct Match: 2470
+Rate: 0.993964
+Time: 538.028 ms
+
+Test Epipolar:
+1-3
+
+Bikes:
+Match Size: 1008 correct Match: 1005
+Rate: 0.997024
+Time: 152.601 ms
+
+Bark:
+Match Size: 64 correct Match: 59
+Rate: 0.921875
+Time: 67.302 ms
+
+Graffiti:
+Match Size: 102 correct Match: 83
+Rate: 0.813725
+Time: 641.804 ms
+
+Boat:
+Match Size: 869 correct Match: 842
+Rate: 0.96893
+Time: 1711.59 ms
+
+Leuven:
+Match Size: 695 correct Match: 686
+Rate: 0.98705
+Time: 191.496 ms
+
+UBC:
+Match Size: 2457 correct Match: 2456
+Rate: 0.999593
+Time: 614.149 ms
+
+
+Wall:
+1-2
+Match Size: 1870 correct Match: 1756
+Rate: 0.939037
+Time: 1347.58 ms
+
+1-3
+Match Size: 899 correct Match: 896
+Rate: 0.996663
+Time: 1287.7 ms
+
+1-4
+Match Size: 283 correct Match: 208
+Rate: 0.734982
+Time: 1373.6 ms
+
+1-5
+Match Size: 41 correct Match: 23
+Rate: 0.560976
+Time: 1275.73 ms
+
+1-6
+Match Size: 8 correct Match: 1
+Rate: 0.125
+Time: 1302.77 ms
+
+Tree:
+1-2
+Match Size: 1773 correct Match: 1663
+Rate: 0.937958
+Time: 3938.41 ms
+
+1-3
+Match Size: 1247 correct Match: 968
+Rate: 0.776263
+Time: 4024.37 ms
+
+1-4
+Match Size: 734 correct Match: 456
+Rate: 0.621253
+Time: 3426.66 ms
+
+1-5
+Match Size: 392 correct Match: 271
+Rate: 0.691327
+Time: 2544.6 ms
+
+1-6
+Match Size: 193 correct Match: 110
+Rate: 0.569948
+Time: 1850.59 ms

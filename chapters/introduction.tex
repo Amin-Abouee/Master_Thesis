@@ -68,7 +68,7 @@ A-KAZE \cite{alcantarilla2011fast} Features uses a novel mathematical framework 
 Despite of moderate increase in computational time, especially compare to SURF, but the AKZE feature algorithms is a forward step in performance and accuracy for both detection and description against previous state-of-the-art algorithms such as SURF, SIFT, BRISK and FREAK.
 The below graphs are taken form computer-vision-talks weblog \footnote{\url{http://computer-vision-talks.com/articles/2013-03-17-porting-kaze-features-to-opencv/}} and prepared by OpenCV Comparison Tool \footnote{\url{https://github.com/BloodAxe/OpenCV-Features-Comparison}}. It compare the KAZE feature with the other well-known algorithms from several aspects of invariantly such as rotation, scale and brittleness and robustness to blur. As you can see, in all cases, the result of KAZE in much better.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=75mm]{figures/rotation_KAZE} &  \includegraphics[width=75mm]{figures/scale_KAZE} \\
 (a) Rotation Test & (b) Scale Invariance \\[6pt]
@@ -81,7 +81,7 @@ The below graphs are taken form computer-vision-talks weblog \footnote{\url{http
 As we mentioned in the definition of A-KAZE, it uses of two new algorithms (FED and M-LDB) and consequently the computation cost for deception and description decrease dramatically. It also extends to support four different type of extracted descriptor [] depend on image properties. In the next graph, A comparison between four top binary descriptors, A-KAZE, KAZE, BRISK, FREAK, was prepared by computer-vision-talks weblog. All algorithms tested for variety of environments and invariantly to scale, brittleness and robustness to blur.
 $$(Descriptor_KAZE, Descriptor_KAZE_upright, Descriptor_MLDB and Descriptor_MLDB_upright)$$
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=75mm]{figures/brithness_akaze} &  \includegraphics[width=75mm]{figures/scale_akaze} \\
 (a) Brittleness Invariance & (b) Scale Invariance \\[6pt]
@@ -93,7 +93,7 @@ $$(Descriptor_KAZE, Descriptor_KAZE_upright, Descriptor_MLDB and Descriptor_MLDB
 
 Except of the original authors implementation in \url{https://github.com/pablofdezalc/akaze}, both KAZE and A-KAZE are ported to the new version of OpenCV 3.0 and boosted by OpenCL. In this master thesis, the A-KAZE implementation of OpenCV is used for both feature detection and description. The parameters of A-KAZE optimized based of our requirement and listed as below table:
 
-\begin{table}[ht]
+\begin{table}[H]
   \caption{A-KAZE value parameters in OpenCV 3.0}
   \begin{tabular}{| c | c | c | c | c | c | c |}
       \hline
@@ -119,6 +119,31 @@ As following, each step describe briefly:
   \item Symmetric Matching: We now have two relatively good match sets, one from the first image to second image and the other one from second image to the first one. From these sets, we will now extract the matches that are in agreement with both sets. This is the symmetrical matching scheme imposing that, for a match pair to be accepted, both points must be the best matching feature of the other.
   \item Epipolar Constraint Matching: The last phase now consists of an additional filtering test that will this time use the fundamental matrix in order to reject matches that do not obey the epipolar constraint. This test is based on the RANSAC method that can compute the fundamental matrix even when outliers are still present in the match set. For this one When using the cv::findFundamentalMat function with Ransacs, two extra parameters are provided. The first one is the confidence level that determines the number of iterations to be made. The second one is the maximum distance to the epipolar line for a point to be considered as an inlier. All matched pairs in which a point is at a distance from its epipolar line larger than the one specified will be reported as an outlier. Therefore, the function also returns a std::vector of char value indicating that the corresponding match has been identified as an outlier (0) or as an inlier (1). The inlier points regarding to this mask array and input points from symmetric matching are selected as the final vector in structure of cv::DMatch. This vector illustrate the robust feature match between an image pair.
 \end {enumerate}
+
+\section {Method Evaluation}
+In previous Section, A new Approach for feature matching was proposed that we call it robust feature matching. It consists of four outliers removal steps to reach a feature matching with high accuracy and reliably. This section provides a performance evaluation of matching precision and speed for each phase of this methods. We evaluate the descriptors on real images with different geometric and photometric transformations and for different scene types. The ground true data set \footnote {\url{http://www.robots.ox.ac.uk/~vgg/research/affine/}} involves six difference type of transformations that illustrates in Fig.
+% \autoref{fig:sample-drawing}
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{cccc}
+% \subfloat[A]{\includegraphics[width=65mm]{figures/bike_img3}} & 
+% \subfloat[B]{\includegraphics[width=65mm]{figures/bike_img3}} \\ 
+  \includegraphics[width=35mm]{figures/bike_img1} &   \includegraphics[width=35mm]{figures/bike_img3}  &
+  \includegraphics[width=35mm]{figures/bark_img1} &   \includegraphics[width=35mm]{figures/bark_img3} \\
+\multicolumn{2}{c} {(a) blur} &
+\multicolumn{2}{c} {(b) zoom + rotation} \\[6pt]
+ \includegraphics[width=35mm]{figures/graf_img1} &   \includegraphics[width=35mm]{figures/graf_img3} &
+ \includegraphics[width=35mm]{figures/boat_img1} &   \includegraphics[width=35mm]{figures/boat_img3} \\
+\multicolumn{2}{c} {(c) viewpoint} &
+\multicolumn{2}{c} {(d) zoom + rotation} \\[6pt]
+ \includegraphics[width=35mm]{figures/leuven_img1} &   \includegraphics[width=35mm]{figures/leuven_img3} &
+ \includegraphics[width=35mm]{figures/ubc_img1} &   \includegraphics[width=35mm]{figures/ubc_img3} \\
+\multicolumn{2}{c} {(e) light} &
+\multicolumn{2}{c} {(f) JPEG compression} \\[6pt]
+\end{tabular}
+\caption{caption}
+\end{figure}
 
 
 % See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
