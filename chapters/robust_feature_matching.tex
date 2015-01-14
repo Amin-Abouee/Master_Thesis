@@ -1,0 +1,307 @@
+%!TEX root = main.tex
+\chapter{Robust Feature Matching}\label{chapter:Robust Feature Matching}
+As it was mentioned in introduction, There are two major methods for 3D tracking. Marker-based 3D tracking system, requires the marker and knowledge about the environment to estimate the pose of camera. Some times due to some restriction about the environment (e.g. outdoor environment) and tracking situation, this task is hard or is impossible. Hence, it is better to rely on the features that naturally are extracted from images. It is notable in this approach, more meta informations such as a model of scene object, a set of planer parts and some information about the camera is necessary. To make this procedure independent of 3D scene models, Vincent lepetit and Pascal Fua \cite{lepetit2005monocular} introduced a method that can explorer simultaneously both camera trajectory (tracking) and 3D world map of environment (mapping). \\
+For the natural-based 3D Tracking, The whole literature in this subject can be organized into two big families regarding to the properties of image's features that we want to use.
+\begin{itemize}
+\item Edge-Based methods investigate on the areas with the highest value of gradient that represents edges. These methods try to make an accurate match between the projection of 3D edges in the real world and these gradient points. RAPID (SITE), Explicit Edge Extraction and Direct Optimization on Gradient are some algorithms in this area. 
+% http://en.wikipedia.org/wiki/Feature_detection_(computer_vision) for example.
+\item The other methods investigate on the information that can be extracted directly from the pixels of image. It can be derived from optical flow, template matching and interest points techniques.
+\end{itemize}
+
+\section{Interest Point Method (Corner-Based)}
+Despite of Edge-Based methods that need a overall view of the whole image to find the high gradient points and contours,(global view), The interest point-based methods just use of localized features. The difference key between these two approaches is, an interest point is a intersection of two edges that represents a point in which the direction of these two edges changed. Consequently, the gradient of this point have a huge amount in both direction and this property help to can be detected easily.\\
+In the case of similarity, both Edge-Based and Interest Point-Based techniques rely on the matching the features among the frames independent of other points. They also can handle the partial occlusions and matching errors problems and are invariant to change of illumination. The advantage of interest point-based methods compared to edge-based methods is that they do not get confused by background clutter. Generally interest points must be uniquely recognizable between all image pixels.\\
+After that in this master thesis, instead of interest points, we used of feature points term.\\
+Comparing the all pixels of two or more images, one by one is really difficult and high computationally time. instead of this approach, some unique interest points are extracted (feature detection) from images and then coded into a binary string or a float number (feature extraction) and called the feature descriptor.\\
+
+\subsection{Feature Detection}
+ The efficient detection of interesting features is a crucial step for many computer vision applications. For detection the features points, attention to some properties of points should be considered as follow: \cite{forstner1986feature}
+\begin{enumerate}
+  \item The feature points represented by a surrendered patch around the center. This patch should be textured.
+  \item Two neighbor feature points, should be different.
+  \item Two almost similar feature points (usually neighbor or from same pattern) should be ignored.
+  \item The feature selection operation, should be had the same result and performance in all images. It means if a point was selected as a feature point in one section of image, it also should be selected as a feature point in the same section but in different images.
+\end{enumerate}
+For the first time, Harris and Stephen \cite{harris1988combined} introduced a new method for feature detection regarding to fact that corner feature point represent a variation in the gradient of a point in two direction. they were looked for this variation.\\
+Presently, with knowledge expansion in computer vision community, So many techniques were developed that are useful based on the situation of images. Some of the most versatile and popular feature detector are:
+\begin{itemize}
+\item SIFT \cite{lowe2004distinctive} based of difference of Gaussians (DoG).
+\item SURF \cite{bay2006surf} is an instance of 2D Haar wavelet.
+\item FAST \cite{rosten2010faster} use of heuristic model for feature point and machine learning techniques.
+\end{itemize}
+In computer vision community, a feature point or interest point also called keypoint.
+
+\subsection{Feature Extraction}
+Once feature points are located, we are interested in describing the image patch with a robust feature vector. The most well-known descriptor was proposed in SIFT \cite{lowe2004distinctive}. A 128-dimensional vector is obtained from a grid of histogram. It was a powerful descriptor and robustness to illumination and change of view. The other approach that is wildly used at moment is SURF \cite{bay2006surf}. Its idea based on local gradient histogram and it has similar performance as SIFT. The point of SURF algorithm is that it can be run more faster with less memory as SIFT algorithm. Both of these approaches describe a keypoint with a long vector of float number in which SIFT with 128-dimensional and SURF with 64 and 128-dimensional.\\
+In 2010, Calonder \textit{et al.} in \cite{calonder2010brief} showed that it is possible to decrease the dimensionality a feature descriptor by directly building a short binary descriptor in which each bits are independent. This new algorithm called BRIEF. using of Hamming distance (bitwise XOR) instead of Euclidean distance is an advantage point for binary descriptors. The negative point of BRIEF algorithm was that the result descriptor is not invariant to scale and rotation change. After that both BRISK \cite{leutenegger2011brisk} and FREAK \cite{alahi2012freak} were developed that are state-of-the-art algorithms rely on binary descriptors and also invarient to scale and rotation. BRISK and FREAK are inspired by intensity comparisons around a keypoint and human visual system (especially retina) respectively.
+
+\subsection {KAZE and A-KAZE}
+In this master thesis we were looking for a best feature descriptor that should be invariant to brightness, scale, rotation and robustness to blur. Between all feature detectors and extractors that already mentioned here, The KAZE (Japanese word meaning \emph{wind}) and especially A-KAZE (Accelerated-KAZE) feature detector and extractor was selected. Right now it has the best result among all algorithms in this subject. The structure of its descriptor is binary and is added to the new version of OpenCV 3.0 \footnote{\url{http://docs.opencv.org/trunk/modules/features2d/doc/feature_detection_and_description.html}}.
+KAZE \cite{alcantarilla2012kaze} feature is a new 2D multi-scale feature detection and description that its algorithm rely on nonlinear scale space. Previous methods such as SIFT or SURF find features in the Gaussian scale space (particular instance of linear diffusion). However, Gaussian blurring does not respect the natural boundaries of objects and smooths in the same degree details and noise when evolving the original image through the scale space.\\
+By means of nonlinear diffusion we can detect and describe features in nonlinear scale spaces keeping important image details and removing noise as long as we evolve the image in the scale space. We use variable conductance diffusion which is one of the simplest cases of nonlinear diffusion. The nonlinear scale space is build efficiently by means of Additive Operator Splitting (AOS) schemes, which are stable for any step size and are parallelizable.\\
+A-KAZE \cite{alcantarilla2011fast} Features uses a novel mathematical framework called Fast Explicit Diffusion (FED) embedded in a pyramidal framework to speed-up dramatically the nonlinear scale space computation. In addition, we compute a robust Modified-Local Difference Binary (M-LDB) descriptor that exploits gradient information from the nonlinear scale space. A-KAZE obtains comparable results to KAZE in some datasets, while being several orders of magnitude faster.\\
+Despite of moderate increase in computational time, especially compare to SURF, but the AKZE feature algorithms is a forward step in performance and accuracy for both detection and description against previous state-of-the-art algorithms such as SURF, SIFT, BRISK and FREAK.
+The below graphs are taken form computer-vision-talks weblog \footnote{\url{http://computer-vision-talks.com/articles/2013-03-17-porting-kaze-features-to-opencv/}} and prepared by OpenCV Comparison Tool \footnote{\url{https://github.com/BloodAxe/OpenCV-Features-Comparison}}. It compare the KAZE feature with the other well-known algorithms from several aspects of invariantly such as rotation, scale and brittleness and robustness to blur. As you can see, in all cases, the result of KAZE in much better.
+
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/rotation_KAZE} &  \includegraphics[width=75mm]{figures/scale_KAZE} \\
+(a) Rotation Test & (b) Scale Invariance \\[6pt]
+ \includegraphics[width=75mm]{figures/brightness_KAZE} &  \includegraphics[width=75mm]{figures/blur_KAZE} \\
+(c) Brittleness Invariance & (d) Robustness to Blur \\[6pt]
+\end{tabular}
+\caption{The comparison of KAZE and other well-know feature descriptions}\label{fig:compare_kaze}
+\end{figure}
+
+As we mentioned in the definition of A-KAZE, it uses of two new algorithms (FED and M-LDB) and consequently the computation cost for deception and description decrease dramatically. It also extends to support four different type of extracted descriptor [] depend on image properties. In the next graph, A comparison between four top binary descriptors, A-KAZE, KAZE, BRISK, FREAK, was prepared by computer-vision-talks weblog. All algorithms tested for variety of environments and invariantly to scale, brittleness and robustness to blur.
+$$(Descriptor_KAZE, Descriptor_KAZE_upright, Descriptor_MLDB and Descriptor_MLDB_upright)$$
+
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/brithness_akaze} &  \includegraphics[width=75mm]{figures/scale_akaze} \\
+(a) Brittleness Invariance & (b) Scale Invariance \\[6pt]
+\multicolumn{2}{c}{\includegraphics[width=75mm]{figures/blur_akaze} }\\
+\multicolumn{2}{c}{(e) Robustness to Blur}
+\end{tabular}
+\caption{The comparison between KAZE and A-KAZE}\label{fig:compare_kaze_and_A-kaze}
+\end{figure}
+
+Except of the original authors implementation in \url{https://github.com/pablofdezalc/akaze}, both KAZE and A-KAZE are ported to the new version of OpenCV 3.0 and boosted by OpenCL. In this master thesis, the A-KAZE implementation of OpenCV is used for both feature detection and description. The parameters of A-KAZE optimized based of our requirement and listed as below table:
+
+\begin{table}[H]
+  \caption{A-KAZE value parameters in OpenCV 3.0}
+  \begin{tabular}{| c | c | c | c | c | c | c |}
+      \hline
+      descriptor type & descriptor size & descriptor channels & threshold & octaves & sublevels & diffusivity \\ \hline \hline
+      Descriptor dump & Full & 3 & 0.001 & 4 & 4 & dump \\ \hline
+  \end{tabular}
+\end{table}
+
+\section {Feature Point Matching}
+For pose estimation, we need to find out a match set of feature points ${m_i}$ and ${m_j}$ which extracted from two successive images with similar view points. The classical technique proposed by Zhan et al. \cite{zhang1995robust}. technique works as follow. At first, for each feature point ${m_i}$ in the first image, it searches for a such ${m_j}$ feature point in the same location of ${m_i}$ but in the second image. The search is relied on the similarity of local image windows centered on the points, which strongly characterizes the points when the images are sufficiently close. The measure for similarity is zero-normalized cross-correlation that is invariant to affine change of the local image intensities and make the procedure robust to illumination changes. To make robust match, the reverse previous procedure is applied from second image to first image. Only the correspondences ${m_i} \longleftrightarrow {m_j}$ between points that close each other are kept.\\
+KLT (Kanade-Lucas-Tomasi) tracker \cite{tomasi1991detection} \cite{shi1994good} is another approach to track the feature points across the images. It uses of optical flow to find out the location of feature in following image. Both approaches have their strengths: KLT handles continuity better and keeps tracking points that cannot be detected as interest points. By contrast, performing detection in every frame naturally handles the appearance and disappearance of interest points due to aspect changes and occlusions.
+
+\section {Our Method}
+One of the critical part on this master thesis is implementation a robust and accurate feature matching procedure, because the rest phases are completely depend to one. The result of two well-known approaches ,which introduced in previous section, were not perfect that we wanted. Therefore we investigate on a multi layer matcher that remove outliers as well.\\
+This novel feature matching consists of 4 consecutive phases that was implemented by OpenCV Ver 3.0 library and Ubitrck Framework. In this recipe, we solve the feature point matching problem and we will explain how to exploit the epipolar constraint between two views to match image features more reliably.\\
+The principle we will follow is simple: when we match feature points between two images, we only accept those matches that fall onto the corresponding epipolar lines. However, to be able to check this condition, the fundamental matrix must be known, and we need good matches to estimate this matrix. 
+As following, each step describe briefly:
+\begin {enumerate}
+  \item Brute Force Matching: The first step is simply detecting the feature point and computing their descriptors. Next, we proceed to feature matching using the cv::BruteForceMatcher class as we did in the previous chapter. However, this time we find the two best matching points for each feature (and not only the best one as we did in the previous recipe). This is accomplished by the cv::BruteForceMatcher::knnMatch method (with k=2). Moreover, we perform this matching in two directions, that is, for each point in the first image we find the two best matches in the second image, and then we do the same thing for the feature points of the second image, finding their two best matches in the first image.\\
+  The binary descriptors of A-KAZE are matched in a brute force manner with efficient evaluation of the Hamming distance.
+  Hamming distance which is computationally cheap on modern architectures with efficient binary XOR and population count instructions.
+  \item Nearest Neighbor (Ratio Test) Matching: The second well-known outlier-removal technique is the ratio test. In this phase, for each feature point, we have two candidate matches in the other view. These are the two best ones based on the distance between their descriptors. If this measured distance is very low for the best match, and much larger for the second best match, we can safely accept the first match as a good one since it is unambiguously the best choice. Reciprocally, if the two best matches are relatively close in distance, then there exists a possibility that we make an error if we select one or the other. In this case, we should reject both matches. Here, we perform this test in step 3 by verifying that the ratio of the distance of the best match over the distance of the second best match is not greater than a given threshold. A large number of ambiguous matches will be eliminated by this procedure. After several execution of this method, the best threshold found as 0.8.
+  \item Symmetric Matching: We now have two relatively good match sets, one from the first image to second image and the other one from second image to the first one. From these sets, we will now extract the matches that are in agreement with both sets. This is the symmetrical matching scheme imposing that, for a match pair to be accepted, both points must be the best matching feature of the other.
+  \item Epipolar Constraint Matching: The last phase now consists of an additional filtering test that will this time use the fundamental matrix in order to reject matches that do not obey the epipolar constraint. This test is based on the RANSAC method that can compute the fundamental matrix even when outliers are still present in the match set. For this one When using the cv::findFundamentalMat function with Ransacs, two extra parameters are provided. The first one is the confidence level that determines the number of iterations to be made. The second one is the maximum distance to the epipolar line for a point to be considered as an inlier. All matched pairs in which a point is at a distance from its epipolar line larger than the one specified will be reported as an outlier. Therefore, the function also returns a std::vector of char value indicating that the corresponding match has been identified as an outlier (0) or as an inlier (1). The inlier points regarding to this mask array and input points from symmetric matching are selected as the final vector in structure of cv::DMatch. This vector illustrate the robust feature match between an image pair.
+\end {enumerate}
+
+\section {Method Evaluation}
+In previous Section, A new Approach for feature matching was proposed that we call it robust feature matching. It consists of four outliers removal steps to reach a feature matching with high accuracy and reliably. This section provides a performance evaluation of matching precision and speed for each phase of this methods. We evaluate the descriptors on real images with different geometric and photometric transformations and for different scene types. The ground true data set \footnote {\url{http://www.robots.ox.ac.uk/~vgg/research/affine/}} involves six difference type of transformations that illustrates in \autoref{fig:matching_dataset_oxford}
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{cccc}
+  \includegraphics[width=35mm]{figures/bike_img1} &   \includegraphics[width=35mm]{figures/bike_img3}  &
+  \includegraphics[width=35mm]{figures/bark_img1} &   \includegraphics[width=35mm]{figures/bark_img3} \\
+  \multicolumn{2}{c} {(a) blur} &
+  \multicolumn{2}{c} {(b) zoom + rotation} \\[6pt]
+  \includegraphics[width=35mm]{figures/graf_img1} &   \includegraphics[width=35mm]{figures/graf_img3} &
+  \includegraphics[width=35mm]{figures/boat_img1} &   \includegraphics[width=35mm]{figures/boat_img3} \\
+  \multicolumn{2}{c} {(c) viewpoint} &
+  \multicolumn{2}{c} {(d) zoom + rotation} \\[6pt]
+  \includegraphics[width=35mm]{figures/leuven_img1} &   \includegraphics[width=35mm]{figures/leuven_img3} &
+  \includegraphics[width=35mm]{figures/ubc_img1} &   \includegraphics[width=35mm]{figures/ubc_img3} \\
+  \multicolumn{2}{c} {(e) light} &
+  \multicolumn{2}{c} {(f) JPEG compression} \\[6pt]
+\end{tabular}
+\caption{Data set. Examples of images used for the evaluation: (a) blur, (b) zoom + rotation, (c) viewpoint change, (d) zoom + rotation, (e) light change and (f) JPEG compression.}\label{fig:matching_dataset_oxford}
+\end{figure}
+
+based on \cite{mikolajczyk2005comparison} reference paper, the viewpoint change test the camera varies from a fronto-parallel view to one with significant foreshortening at approximately 60 degrees to the camera. The scale change and blur sequences are acquired by varying the camera zoom and focus respectively. The scale changes by about a factor of four. The light changes are introduced by varying the camera aperture. The JPEG sequence is generated using a standard xv image browser with the image quality parameter varying from 40 to 2\%. Each of the test sequences contains 6 images with a gradual geometric or photometric transformation. All images are of medium resolution (approximately 800 x 640 pixels). The images are either of planar scenes or the camera position is fixed during acquisition, so that in all cases the images are related by homographies (plane projective transformations). This means that the mapping relating images is known (or can be computed), and this mapping is used to determine ground truth matches for the affine covariant detectors. As already mentioned, All the images as well as the computed homographies are available on the website. \footnote {\url{http://www.robots.ox.ac.uk/~vgg/research/affine/}}.\\
+For performance evaluation, there are some measurement techniques (\cite{mikolajczyk2005comparison} \cite{mikolajczyk2005performance}) such as repeatability score, precision-recall, speed-up and time that here, the repeatability score and computational time were considered as evaluation criterion. For this one, we calculated the euclidean distance between the detected keypoint in the reference image and keypoint detected in the next image and projected keypoint from reference image the ground truth homography relating the images. \autoref{fig:euclidean_distance_error} shows the euclidean distance between the projected keypoint and estimated keypoint.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=100mm]{figures/euclidean_distance}
+  \caption{The euclidean distance between the projected keypoint by ground truth homography and estimated keypoint by feature matching. }\label{fig:euclidean_distance_error}
+\end{figure}
+
+In this master's thesis two important parameters characterize the performance robust feature matching:
+\begin{itemize}
+  \item repeatability: Is the average number of correct match in images under different geometric and photometric transformations. We say two keypoints are matched if the euclidean distance between the projected keypoint and estimated keypoint are less that 2 pixel.\\
+  $$repeatability_score = \frac{\# correct matches}{\# correspondences}$$
+  \item time: Is the computational cost for execution the robust feature matching. All the measurements have been taken on a 2.4 GHz Intel core i5, 4 GB RAM, Mac osx 10.9.5, the code also is compiled by the Clang version 6.0 (600.0.56).
+\end{itemize}
+
+In following, the performance of each phase of our feature matching in case repeatability score and computational time are calculated. As the matter of case, we show how many of outliers filtered and how much the performance of them tuned after adding of each layer. For this one, six different type of image transformations (\autoref{fig:matching_dataset_oxford}) are analyzed and the reference image is always the image of highest quality and is shown as the leftmost image of each data set. The following image also is the third image of this data set.
+
+\subsection {Brute Force Matching}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/bike_brute_1_3} &  \includegraphics[width=75mm]{figures/barks_brute_1_3} \\
+(a) Bike(blur) & (b) Bark(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/graffiti_brute_1_3} &  \includegraphics[width=75mm]{figures/boat_brute_1_3} \\
+(c) Graffiti(viewpoint) & (d) Boat(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/leuven_brute_1_3} &  \includegraphics[width=75mm]{figures/ubc_brute_1_3} \\
+(e) Leuven(light) & (f) UBC(JPEG compression) \\[6pt]
+\end{tabular}
+\caption{The brute-force matching for variety of image transformation}\label{fig:brute_force_matching}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      data set & Bike & Bark & Graffiti & Boat & Leuven & UBC \\ \hline \hline
+      correspondences & 1825 & 1053 & 2947 & 5891 & 1843 & 2937 \\ \hline
+      correct matches & 1123 & 108 & 510 & 1456 & 833 & 2576 \\ \hline
+      repeatability score & 0.615342 & 0.102564 & 0.173057 & 0.247157 & 0.45198 & 0.877085\\ \hline
+      time (ms) & 151.445 & 65.602 & 637.152 & 1716.15 & 122.205 & 638.884 \\ \hline
+  \end{tabular}
+  \caption{brute-force performance evaluation} \label{tab:brute_force_matching_eval}
+\end{table}
+
+\subsection {Nearest Neighbor Matching (Ratio Test)}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/bike_nn_1_3} &  \includegraphics[width=75mm]{figures/barks_nn_1_3} \\
+(a) Bike(blur) & (b) Bark(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/graffiti_nn_1_3} &  \includegraphics[width=75mm]{figures/boat_nn_1_3} \\
+(c) Graffiti(viewpoint) & (d) Boat(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/leuven_nn_1_3} &  \includegraphics[width=75mm]{figures/ubc_nn_1_3} \\
+(e) Leuven(light) & (f) UBC(JPEG compression) \\[6pt]
+\end{tabular}
+\caption{The nearest neighbor matching for variety of image transformation}\label{fig:nearest_neighbor_matching}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      data set & Bike & Bark & Graffiti & Boat & Leuven & UBC \\ \hline \hline
+      correspondences & 1181 & 147 & 369 & 1648 & 952 & 2548 \\ \hline
+      correct matches & 1069 & 83 & 191 & 1183 & 791 & 2497 \\ \hline
+      repeatability score & 0.905165 & 0.564626 & 0.517615 & 0.71784 & 0.830882 & 0.979984\\ \hline
+      time (ms) & 151.744 & 65.276 & 629.011 & 1682.89 & 121.847 & 527.787 \\ \hline
+  \end{tabular}
+  \caption{nearest neighbor performance evaluation} \label{tab:nearest_neighbor_matching_eval}
+\end{table}
+
+\subsection {Symmetric Matching}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/bike_sym_1_3} &  \includegraphics[width=75mm]{figures/barks_sym_1_3} \\
+(a) Bike(blur) & (b) Bark(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/graffiti_sym_1_3} &  \includegraphics[width=75mm]{figures/boat_sym_1_3} \\
+(c) Graffiti(viewpoint) & (d) Boat(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/leuven_sym_1_3} &  \includegraphics[width=75mm]{figures/ubc_sym_1_3} \\
+(e) Leuven(light) & (f) UBC(JPEG compression) \\[6pt]
+\end{tabular}
+\caption{The symmetric matching for variety of image transformation}\label{fig:symmetric_matching}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      data set & Bike & Bark & Graffiti & Boat & Leuven & UBC \\ \hline \hline
+      correspondences & 1054 & 87 & 190 & 1316 & 785 & 2485 \\ \hline
+      correct matches & 1034 & 68 & 114 & 1101 & 745 & 2470 \\ \hline
+      repeatability score & 0.981025 & 0.781609 & 0.6 & 0.836626 & 0.949045 & 0.993964 \\ \hline
+      time (ms) & 151.983 & 64.549 & 635.564 & 1684.69 & 122.429 & 538.028 \\ \hline
+  \end{tabular}
+  \caption{Symmetric performance evaluation} \label{tab:symmetric_matching_eval}
+\end{table}
+
+\subsection {Epiplar-Constraint Matching}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/bike_final_1_3} &  \includegraphics[width=75mm]{figures/barks_final_1_3} \\
+(a) Bike(blur) & (b) Bark(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/graffiti_final_1_3} &  \includegraphics[width=75mm]{figures/boat_final_1_3} \\
+(c) Graffiti(viewpoint) & (d) Boat(zoom + rotation) \\[6pt]
+ \includegraphics[width=75mm]{figures/leuven_final_1_3} &  \includegraphics[width=75mm]{figures/ubc_final_1_3} \\
+(e) Leuven(light) & (f) UBC(JPEG compression) \\[6pt]
+\end{tabular}
+\caption{The epiplar-constraint matching for variety of image transformation}\label{fig:epipolar_matching}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      data set & Bike & Bark & Graffiti & Boat & Leuven & UBC \\ \hline \hline
+      correspondences & 1008 & 64 & 102 & 869 & 695 & 2457 \\ \hline
+      correct matches & 1005 & 59 & 83 & 842 & 686 & 2456 \\ \hline
+      repeatability score & 0.997024 & 0.921875 & 0.813725 & 0.96893 & 0.98705 & 0.999593 \\ \hline
+      time (ms) & 152.601 & 67.302 & 641.804 & 1711.59 & 191.496 & 614.149 \\ \hline
+  \end{tabular}
+  \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_eval}
+\end{table}
+
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/tree_final_1_2} &  \includegraphics[width=75mm]{figures/tree_final_1_3} \\
+(a) Tree (blur) & (b) Tree (blur) \\[6pt]
+  \includegraphics[width=75mm]{figures/tree_final_1_4} &  \includegraphics[width=75mm]{figures/tree_final_1_5} \\
+(c) Tree (blur) & (d) Tree (blur) \\[6pt]
+  \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/tree_final_1_6} \\
+  \multicolumn{2}{c}{Tree (blur) \\[6pt]
+\end{tabular}
+\caption{The epiplar-constraint matching for variety of image transformation}\label{fig:epipolar_matching}
+\end{figure}
+
+% \begin{table}[H]
+% \centering
+%   \begin{tabular}{| c || c | c |}
+%       \hline
+%       & Mean & Standard Deviation \\ \hline \hline
+%       repeatability score & 0.411198 & 0.270575\\ \hline
+%       time (ms) & 555.239667 & 570.340981 \\ \hline
+%   \end{tabular}
+%   \caption{brute-force matching statistic analyze} \label{tab:brute_force_matching_statistic}
+% \end{table}
+
+
+% See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
+
+% \begin{figure}[htsb]
+%   \centering
+
+%   \pgfplotstableset{col sep=&, row sep=\\}
+%   % This should probably go into a file in data/
+%   \pgfplotstableread{
+%     a & b    \\
+%     1 & 1000 \\
+%     2 & 1500 \\
+%     3 & 1600 \\
+%   }\exampleA
+%   \pgfplotstableread{
+%     a & b    \\
+%     1 & 1200 \\
+%     2 & 800 \\
+%     3 & 1400 \\
+%   }\exampleB
+%   % This should probably go into a file in figures/
+%   \begin{tikzpicture}
+%     \begin{axis}[
+%         ymin=0,
+%         legend style={legend pos=south east},
+%         grid,
+%         thick,
+%         ylabel=Y,
+%         xlabel=X
+%       ]
+%       \addplot table[x=a, y=b]{\exampleA};
+%       \addlegendentry{Example A};
+%       \addplot table[x=a, y=b]{\exampleB};
+%       \addlegendentry{Example B};
+%     \end{axis}
+%   \end{tikzpicture}
+%   \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
+% \end{figure}
+
+% \begin{figure}[htsb]
+%   \centering
+%   \begin{tabular}{c}
+%   \begin{lstlisting}[language=SQL]
+%     SELECT * FROM tbl WHERE tbl.str = "str"
+%   \end{lstlisting}
+%   \end{tabular}
+%   \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
+% \end{figure}
