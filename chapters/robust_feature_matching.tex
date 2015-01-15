@@ -95,6 +95,31 @@ As following, each step describe briefly:
   \item Epipolar Constraint Matching: The last phase now consists of an additional filtering test that will this time use the fundamental matrix in order to reject matches that do not obey the epipolar constraint. This test is based on the RANSAC method that can compute the fundamental matrix even when outliers are still present in the match set. For this one When using the cv::findFundamentalMat function with Ransacs, two extra parameters are provided. The first one is the confidence level that determines the number of iterations to be made. The second one is the maximum distance to the epipolar line for a point to be considered as an inlier. All matched pairs in which a point is at a distance from its epipolar line larger than the one specified will be reported as an outlier. Therefore, the function also returns a std::vector of char value indicating that the corresponding match has been identified as an outlier (0) or as an inlier (1). The inlier points regarding to this mask array and input points from symmetric matching are selected as the final vector in structure of cv::DMatch. This vector illustrate the robust feature match between an image pair.
 \end {enumerate}
 
+\section {Method Implementation}
+In the previous section, the operation of robust feature matching was described. How it works and how the different layers connected together to reach the final result. In the section the implementation's procedure and requirement fro them was explained. one of the goal on this master thesis is adding the robust feature matching to Ubitrack framework. For this one at first we ported the A-kAZE feature descriptor to Ubitrack. The new class called cvAKAZEFeature. Then, A matcher class for AKAZE developed which is a connection between the cvAKAZEFeature and robust feature matching. the name of this class is cvAKAZEFeatureMatcher. As the matter of fact, two vector of AKAZE features have taken and send to robust feature matching to find out the final match vector. In following, The procedure and structure of each of these class classes will be described thoughtfully:
+
+\subsection {cvAKAZEFeature}
+In Ubitrack, some basic classes was implemented by Sven Barth in his master thesis with title \"Flexible and Extensible Feature Tracking Architecture for the Ubitrack Framework\". The basic class of that implementation is an interface class with name FeatureBase. This class is used for dynamic casting between different kind of feature points that we have.
+The next class in this hierarchy that is inherited from FeatureBase is Feature class. The main class that consists of a  \detokenize{boost::shared_ptr} of FeatureBase that represent a position of a feature point and a \detokenize{Math::Pose} object that uses for storing the position of object respect to the camera. The \detokenize{Math::Pose} involves a rotation matrix a vector for translation. To support the OpenCV feature point (implemented by OpenCV), class OpenCVFeature extracted from Feature class. It consists of a \detokenize{cv::KeyPoint} for string the data of feature point and \detokenize{cv::Mat} for their descriptor vector (binary or float). The cvAKAZEFeature is a sub class of OpenCVFeature that uses for saving the value of AKAZE's key point and descriptor. The \autoref{fig:cv_akaze} illustrates the hierarchy of cvAKAZEFeature.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=55mm]{figures/cv_akaze}
+  \caption{The hierarchy of cvAkazeFeature class in Ubitrack Framework}\label{fig:cv_akaze}
+\end{figure}
+ 
+% \subsection {cvAKAZEFeatureMatcher}
+\subsection {RobustFeatureMatching}
+This part is about the implementation of our work in Ubitrack Framework. Firstly, one interface class with name RobustFeatureMatching implemented. This class is cornerstone of our idea. As it was mentioned in previous section, two types of descriptor exist. The binary descriptor and the float descriptor. Two classes RobustFetureMatchingBitVecFeatureBase and RobustFetureMatchingFloatFeatureBase were extended to support both types of descriptors. Both of them contains four function for processing the brute force , nearest neighbor, symmetric and epipolar constraint matching. The output of each function is the input of next function and all functions call consequentially.
+The \autoref{fig:cv_akaze_matching} show the structure of RobustFeatureMatching in Ubitrack Framework.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=140mm]{figures/robust_feature_matching}
+  \caption{The hierarchy of RobustFeatureMatching class in Ubitrack Framework}\label{fig:cv_akaze_matching}
+\end{figure}
+
+
 \section {Method Evaluation}
 In previous Section, A new Approach for feature matching was proposed that we call it robust feature matching. It consists of four outliers removal steps to reach a feature matching with high accuracy and reliably. This section provides a performance evaluation of matching precision and speed for each phase of this methods. We evaluate the descriptors on real images with different geometric and photometric transformations and for different scene types. The ground true data set \footnote {\url{http://www.robots.ox.ac.uk/~vgg/research/affine/}} involves six difference type of transformations that illustrates in \autoref{fig:matching_dataset_oxford}
 
@@ -159,6 +184,8 @@ In following, the performance of each phase of our feature matching in case repe
   \caption{brute-force performance evaluation} \label{tab:brute_force_matching_eval}
 \end{table}
 
+As you can see in \autoref{fig:brute_force_matching} and based to \autoref{tab:brute_force_matching_eval}, except of Bike and UBC date sets, The result of repeatability score for the rest are extremely low. For instance, The repeatability for graffiti and bark data set are around the 0.15 and also so many mismatch feature are shown in (b) and (c). In the case of computational cost, The maximum amount is allocated to boat data set because it has the highest feature points in this test. The \autoref{tab:brute_force_matching_eval} illustrates that the computations time is proportional to the number of feature points that detected by A-KAZE.
+
 \subsection {Nearest Neighbor Matching (Ratio Test)}
 \begin{figure}[H]
 \begin{tabular}{cc}
@@ -183,6 +210,8 @@ In following, the performance of each phase of our feature matching in case repe
   \end{tabular}
   \caption{nearest neighbor performance evaluation} \label{tab:nearest_neighbor_matching_eval}
 \end{table}
+
+The repeatability score of \autoref{tab:nearest_neighbor_matching_eval} and \autoref{tab:brute_force_matching_eval} show the positive effect of nearest neighbor that which applied on the output match of brute force. For all cases, repeatability score significantly increase and in some cases it doubled. For example the repeatability bark data set reached to 0.56 whereas its repeatability score was just 0.10 after the brute force matching. Furthermore, the repeatability for both Bike and UBC data sets are more than 0.90. The time for all cases are similar to brute force matching. It means the nearest neighbor is a lightweight procedure and generally most of the time required to brute force matching.
 
 \subsection {Symmetric Matching}
 \begin{figure}[H]
@@ -209,6 +238,8 @@ In following, the performance of each phase of our feature matching in case repe
   \caption{Symmetric performance evaluation} \label{tab:symmetric_matching_eval}
 \end{table}
 
+After third phase of robust feature matching, approximately the wrong matching lines eliminated from \autoref{fig:symmetric_matching}. The \autoref{tab:symmetric_matching_eval} also shows the repeatability score for Bike, Boat, Leuven and UBC touched values more than 0.85.
+
 \subsection {Epiplar-Constraint Matching}
 \begin{figure}[H]
 \begin{tabular}{cc}
@@ -234,29 +265,88 @@ In following, the performance of each phase of our feature matching in case repe
   \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_eval}
 \end{table}
 
+The \autoref{fig:epipolar_matching} is the target result in our plan. the number of mismatch features reach to minimum one. For instance just one error match for UBC and a repeatability score near the 100\% of accuracy. approximately in all cases the accuracy measure are more than 90\%. A compare between shows that the accuracy of epipolar get 3 times better than the brute force match. In the case of time also we have a overhead of 3 or 4 ms for epipolar matching. Less than of brute force and more than symmetric and nearest neighbor.\\
+As we mentioned in all above tests, we just included the first image with the best quality and third image in each data set.
+In following test, we run the robust feature matching (include four phases) for all images in Wall (viewpoint change) and Trees (Blur) data set.
+
 \begin{figure}[H]
 \begin{tabular}{cc}
-  \includegraphics[width=75mm]{figures/tree_final_1_2} &  \includegraphics[width=75mm]{figures/tree_final_1_3} \\
-(a) Tree (blur) & (b) Tree (blur) \\[6pt]
-  \includegraphics[width=75mm]{figures/tree_final_1_4} &  \includegraphics[width=75mm]{figures/tree_final_1_5} \\
-(c) Tree (blur) & (d) Tree (blur) \\[6pt]
-  \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/tree_final_1_6} \\
-  \multicolumn{2}{c}{Tree (blur) \\[6pt]
+  \includegraphics[width=75mm]{figures/wall_final_1_2} &  \includegraphics[width=75mm]{figures/wall_final_1_3} \\
+(a) wall (blur) & (b) wall (blur) \\[6pt]
+  \includegraphics[width=75mm]{figures/wall_final_1_4} &  \includegraphics[width=75mm]{figures/wall_final_1_5} \\
+(c) wall (blur) & (d) wall (blur) \\[6pt]
+  \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/wall_final_1_6}} \\
+  \multicolumn{2}{c}{wall (blur)} \\[6pt]
 \end{tabular}
-\caption{The epiplar-constraint matching for variety of image transformation}\label{fig:epipolar_matching}
+\caption{The wall data set for viewpoint transformation}\label{fig:epipolar_matching_wall}
 \end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      Tree data set & image 1 \& 2 & image 1 \& 3 & image 1 \& 4 & image 1 \& 5 & image 1 \& 6 \\ \hline \hline
+      correspondences & 1870 & 899 & 283 & 41 & 8 \\ \hline
+      correct matches & 1756 & 896 & 208 & 23 & 1 \\ \hline
+      repeatability score & 0.939037 & 0.996663 & 0.734982 & 0.560976 & 0.125 \\ \hline
+      time (ms) & 1347.58 & 1287.7 & 1373.6 & 1275.73 & 1302.77 \\ \hline
+  \end{tabular}
+  \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_wall_eval}
+\end{table}
+
+Based on the obtained date from \autoref{fig:epipolar_matching_wall} and \autoref{tab:epipolar_matching_wall_eval}, The repeatability score between the first, second and third pair are around the 0.99 but for the rest pairs, This score decreases from 0.73 to 0.125. The result of last pair illustrates that robust feature matching can not apply on the images with long viewpoint change (long base-line). This test also shows that the number of correspondences points and correct matches for the last pair (1 and 6) are 8 and 1 respectively are not sufficient for our approach.
+
+\begin{figure}[H]  
+\begin{tabular}{cc}
+  \includegraphics[width=75mm]{figures/tree_final_1_2} &  \includegraphics[width=75mm]{figures/tree_final_1_3} \\
+(a) tree (blur) & (b) tree (blur) \\[6pt]
+  \includegraphics[width=75mm]{figures/tree_final_1_4} &  \includegraphics[width=75mm]{figures/tree_final_1_5} \\
+(c) tree (blur) & (d) tree (blur) \\[6pt]
+  \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/tree_final_1_6}} \\
+  \multicolumn{2}{c}{tree (blur) }\\[6pt]
+\end{tabular}
+\caption{The tree data set for viewpoint transformation}\label{fig:epipolar_matching_tree}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c |}
+      \hline
+      Tree data set & imge 1 \& 2 & image 1 \& 3 & image 1 \& 4 & image 1 \& 5 & image 1 \& 6 \\ \hline \hline
+      correspondences & 1773 & 1247 & 734 & 392 & 193 \\ \hline
+      correct matches & 1663 & 968 & 456 & 271 & 110 \\ \hline
+      repeatability score & 0.937958 & 0.776263 & 0.621253 & 0.691327 & 0.569948 \\ \hline
+      time (ms) & 3938.41 & 4024.37 & 3426.66 & 2544.6 & 1850.59 \\ \hline
+  \end{tabular}
+  \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_tree_eval}
+\end{table}
+
+The obtained result for Trees data set are similar to Walls. The repeatability score drops from first pair to the last pair because the difference between the images get more and consequently, detecting the correct match between features get more difficult. The correct matches for the last pair is 110 whereas the correct matches for the same pair of walls was 1 feature. It prove that the huge viewpoint change is more complicated than the blur case. To solve this singularity, it is better to take the images with shorter viewpoint change. 
+
+\subsection {Overall View}
+\begin{table}[H]
+\centering
+  \begin{tabular}{| c || c | c | c | c | c |}
+      \hline
+      Data Set & Brute Force & Nearest Neighbor & Symmetric & Epipolar Constraint \\ \hline \hline
+      Mean & 0.411198 & 0.752685 & 0.857045 & 0.948033 \\  \hline
+      Standard Deviation & 0.270575 & 0.169739 & 0.1383 & 0.065499 \\  \hline
+  \end{tabular}
+  \caption{The mean and standard deviation of repeatability score} \label{tab:repeatability_matching_statistic}
+\end{table}
+
+The \autoref{tab:repeatability_matching_statistic} is and statistical analyzing of each levels of robust feature matching. It shows the average and standard devision of repeatability score of all data sets that described in \autoref{fig:matching_dataset_oxford}. The mean of repeatability score has a growth path from 0.411198 to 0.948033 and the repeatability score increase in each level. The standard devision that represent the error around the average also decrease from 0.27 to 0.06. Both of mean and standard devision show the result of each layer improve sequentially and it can prove the concreteness of our approach.
 
 % \begin{table}[H]
 % \centering
-%   \begin{tabular}{| c || c | c |}
-%       \hline
-%       & Mean & Standard Deviation \\ \hline \hline
-%       repeatability score & 0.411198 & 0.270575\\ \hline
-%       time (ms) & 555.239667 & 570.340981 \\ \hline
-%   \end{tabular}
-%   \caption{brute-force matching statistic analyze} \label{tab:brute_force_matching_statistic}
+  % \begin{tabular}{| c || c | c | c | c | c |}
+      % \hline
+      % Data Set & Brute Force & Nearest Neighbor & Symmetric & Epipolar Constraint \\ \hline \hline
+      % Mean & 555.239667 & 529.759167 & 532.873833 & 563.157 \\  \hline
+      % Standard Deviation & 570.340981 & 557.464191 & 558.289539 & 559.798208 \\  \hline
+  % \end{tabular}
+  % \caption{The mean and standard deviation of time} \label{tab:time_matching_statistic}
 % \end{table}
 
+% In the case of computation time, 
 
 % See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
 
