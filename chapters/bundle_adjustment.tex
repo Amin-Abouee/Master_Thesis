@@ -114,5 +114,56 @@ Where
      \end{bmatrix}
 \end{gather*}
 
-After converting the 2D points, rotation and translation matrices from Ubitrack to OpenCV, the \detokenize{Sba::run()} function is executed. Then the optimized 3D points converted again to Ubitrack and the process of Bundle Adjustment finishes.
+After converting the 2D points, rotation and translation matrices from Ubitrack to OpenCV, the \detokenize{Sba::run()} function is executed. Then the optimized 3D points converted again to Ubitrack and the process of Bundle Adjustment finishes.\\
 
+\section{Result evaluation}
+In this section the performance of cvsba and our porting module is evaluated. For this purpose, the estimated 3D points from Ubitrack marker-based pose estimation are optimized and compared by the ground true data. The Ubitrack marker-based pose estimation was implemented by Sven Barth as a master's thesis in Fachgebeit Augmented Reality (FAR) at technical university of Munich with title "A Flexible and Extensible Feature Tracking Architecture for the Ubitrack Framework". This feature tracking technique is inspired of PTAM \cite{klein2007parallel} and it works as follow: Firstly, The corners of markers detects reliably and accurately in each frame. Then marker id and their corners matched with previous frames. For instance the corners of marker "0272" in frame i matched with the corner of same marker in frame j. After that the correspondence 3D points of these corners are estimated by a 3D reconstruction approach and the pose of camera calculated.\\
+To evaluate the performance of our module for using of cvsba bundle adjustment, after the second frames and when the 3D points of all marker's corners are estimated, the bundle adjustment module is executed to refine the estimated 3D points. The ground truth data is 3D points are provided by Farco machine in which its measurement error is 0.1 millimeters. The bundle adjustment procedure optimize the 3D points after second frames and our python evaluation script compare optimized 3D points wit ground truth data.\\
+The data set is a video sequence that grabs from a board which consists of 10 markers with different id. \autoref{fig:marker_ground_truth} shows some example image of our test data set.
+\begin{figure}[H]  
+\begin{tabular}{cc}
+  \includegraphics[width=65mm]{figures/marker_frame_1} &  \includegraphics[width=65mm]{figures/marker_frame_2} \\
+(a) sample 1 & (b) sample 2 \\[6pt]
+  \includegraphics[width=65mm]{figures/marker_frame_3} &  \includegraphics[width=65mm]{figures/marker_frame_4} \\
+(c) sample 3 & (d) sample 4 \\[6pt]
+\end{tabular}
+\caption{Some sample of marker data set}\label{fig:marker_ground_truth}
+\end{figure}
+
+For evaluation, we create two sample data sets that each of them involves ten images. the images in each sample data set selected randomly from our data set. For each sample data set, the euclidean error of all four points of each markers are calculated compare to the ground truth. These euclidean errors draw on a graph after each step of optimization.
+
+\subsection{Test 1}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=160mm]{figures/graph_test_1}
+  \caption{The euclidean distance for each marker. Each point in this figure represents the distance (euclidean error) between all four corners of that marker and ground truth corners.}\label{fig:test_1_ba}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c | c | c |}
+      \hline
+      \# BA & \nth{1} & \nth{2} & \nth{3} & \nth{4} & \nth{5} & \nth{6} & \nth{7} & \nth{8} & \nth{9} \\ \hline \hline
+      Mean & 32.7776 & 10.2463 & 9.3335 & 9.1859 & 9.1667 & 9.2081 & 9.1938 & 9.1938 & 9.1938 \\ \hline
+      SD & 44.4860 & 3.9315 & 3.8680 & 3.9815 & 4.0118 & 4.0023 & 3.9919 & 3.9919 & 3.9919 \\ \hline
+  \end{tabular}
+  \caption{The mean and standard deviation of error for all markers in each step of execution of bundle adjustment} \label{tab:test_1_ba}
+\end{table}
+
+‌‌‌‌Both \autoref{fig:test_1_ba} and \autoref{tab:test_1_ba} illustrates the tremendous impact of bundle adjustment on the raw input data. After the second bundle adjustment the mean error for all markers drops from 32.7776 milliliter to 10.2463 milliliter. Data inconsistencies also decreases from 44.4860 to 3.9315. After the second bundle adjustment, the speed of convergence get slow and it becomes stable on 9.1938 milliliters and 3.9919 milliliters for mean and standard deviation after the seventh bundle adjustment. 
+
+\subsection{Test 2}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=160mm]{figures/graph_test_2}
+  \caption{The euclidean distance for each marker. Each point in this figure represents the distance (euclidean error) between all four corners of that marker and ground truth corners.}\label{fig:test_2_ba}
+\end{figure}
+
+\begin{table}[H]
+  \begin{tabular}{| c || c | c | c | c | c | c | c | c | c |}
+      \hline
+      \# BA & \nth{1} & \nth{2} & \nth{3} & \nth{4} & \nth{5} & \nth{6} & \nth{7} & \nth{8} & \nth{9} \\ \hline \hline
+      Mean & 29.2014 & 12.2687 & 12.5162 & 11.3382 & 11.3243 & 11.3243 & 11.3401 & 11.3401 & 11.3401 \\ \hline
+      SD & 26.9939 & 2.9500 & 2.7568 & 2.2331 & 2.0157 & 2.01567 & 1.9501 & 1.9501 & 1.9501 \\ \hline
+  \end{tabular}
+  \caption{The mean and standard deviation of error for all markers in each step of execution of bundle adjustment} \label{tab:test_2_ba}
+\end{table}
