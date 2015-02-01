@@ -7,6 +7,7 @@ calibration and radial distortion), to obtain a reconstruction which is optimal 
 The general idea behind the BA is to minimize the reprojection error between the observed and predicted image points, which is expressed as the sum of squares of a large number of nonlinear functions. Thus, the minimization is achieved using nonlinear least-squares algorithms. Levenberg-Marquardt (LM) is of the most successful due to its ease of implementation and its use of an effective damping strategy that lends it the ability to converge quickly from a wide range of initial guesses to the final goal.\\
 In the case of time and memory, The general least-squares algorithm acquires high computational and memory storage costs Due to the very large number of parameters involved. But fortunately, the lack of interaction among certain subgroups of parameters results in the corresponding Jacobian being sparse, due to achieve considerable computational savings.\\
 In this master thesis we do not want to go deep inside the math base of BA. There are so many libraries that already implemented the Bundle Adjustment. In this master thesis, the cvsba \footnote{\url{http://www.uco.es/investiga/grupos/ava/node/39}} (an OpenCV wrapper for sba library) ,which is an OpenCV wrapper for the well-known Sparse Bundle Adjustment library, was ported to Ubitrack Framework. This Bundle Abstemiousness is used to refine the 3D Points that estimated from mapping task of both marker-based and feature based techniques in Ubitrack.\\
+
 \section{cvsba}
 casbah is an open source library for Sparse Bundle Adjustment (sba) that based on OpenCV\footnote{\url{http://www.uco.es/investiga/grupos/ava/node/39}}. It was implemented by Manolis Lourakis at Foundation for Research and Technology - Hellas in Heraklion, Crete, Greece. The main features of this BA are:
 \begin{itemize}
@@ -63,7 +64,8 @@ For the M cameras and N 3D points, the parameters description is the following:
 \item \textbf{distCoeffs:} It represents the distortion coefficients of each camera. Type:[input/output], Size:[M * (5*1)]
 \item \textbf{return value:} The return value represents the reprojection error after the bundle adjustment.
 \end{itemize}
-\subsection{Type of optimization}
+
+\subsection{Type of optimization} \label{subsec:type_of_optimization}
 The sba library can run different types of optimizations (\detokenize{Sba::MOTION}, \detokenize{Sba::STRUCTURE}, \detokenize{Sba::MOTIONSTRUCTURE}). Each type of optimization affect to some of the input parameters. For instance, MOTIONSTRUCTURE is aimed at modifying both the structure (3D points), and the motion (Intrinsics,Distortion , R and T). However, you can control which of these elements to be effectively optimized using fixedIntrinsics and fixedDistortion. If you set this parameters to 5, then Intrinsics and Distortion will not be modified at all. Then, the algorithm will only modify the 3D points. However, if you set  fixedIntrinsics and fixedDistortion to 0, then,  the the elements in cameraMatrix,R,T, distCoeffs will also be modified with the new optimized values.
 
 \subsection{Parameters}

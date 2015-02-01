@@ -38,7 +38,7 @@ The next class in this hierarchy that is inherited from FeatureBase is Feature c
 \end{figure}
  
 % \subsection {cvAKAZEFeatureMatcher}
-\subsection {RobustFeatureMatching}
+\subsection {RobustFeatureMatching} \label{subsec:robust_feature_matching}
 This part is about the implementation of our feature matching in Ubitrack Framework. Firstly, one abstract class with name RobustFeatureMatching is implemented. This class is cornerstone of our idea. As it was mentioned in previous section, two types of descriptors exist. The binary descriptor and the float descriptor. Two classes RobustFetureMatchingBitVecFeatureBase and RobustFetureMatchingFloatFeatureBase were extended to support both types of descriptors. Both of them contains four functions for processing the brute force, nearest neighbor, symmetric and epipolar constraint matching layers. The output of each function is the input of next function and all functions call consecutively.The \autoref{fig:cv_akaze_matching} show the structure of RobustFeatureMatching in Ubitrack Framework.
 
 \begin{figure}[H]
