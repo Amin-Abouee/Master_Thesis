@@ -1,0 +1,7 @@
+markerless 3-> Mean:8.7867  - Std:5.9866
+markerless 5-> Mean:1.3303  - Std:1.1184
+Ubitrack-> Mean:10.1552  - Std:0.9700
+Rotation
+markerless 3-> Mean:0.0135  - Std:0.0053
+markerless 5-> Mean:0.0019  - Std:0.0015
+Ubitrack-> Mean:0.0040  - Std:0.0006

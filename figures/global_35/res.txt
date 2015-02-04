@@ -1,0 +1,6 @@
+Translation
+markerless-> Mean:1.3303  - Std:1.1184
+Ubitrack-> Mean:10.1552  - Std:0.9700
+Rotation
+markerless-> Mean:0.0019  - Std:0.0015
+Ubitrack-> Mean:0.0040  - Std:0.0006

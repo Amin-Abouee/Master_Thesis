@@ -1,0 +1,6 @@
+Translation
+Mean: 0.6558
+Std: 1.4589
+Rotation
+Mean: 0.0007
+Std: 0.0008

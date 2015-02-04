@@ -14,38 +14,77 @@ In the following, each layer is described briefly:
 \begin {enumerate}
   \item Brute Force Matching: In the first layer we apply a brute force matching to the input feature points from two images. For this matching we use \detokenize{cv::BruteForceMatcher} class. In this step for each feature point in the first image the two best matching feature points in the second image are selected by Hamming distance. This process is then reverses from the second image to the first image. This is accomplished by the \detokenize{cv::BruteForceMatcher::knnMatch} method (with k=2).\\
   The binary descriptors of A-KAZE are matched in a brute force manner with efficient evaluation of the Hamming distance which is computationally cheap on modern architectures with efficient binary XOR and population count instructions.
-  The result of this layer is two vectors one from first image to the second and vice versa. Each of these two vectors contains a two-member vector for each feature point. That is, the result is a data structure in the form of \detokenize{std::vector < std::vector < cv::CMatch > >}. 
+  The result of this layer is two vectors one from first image to the second and vice versa. Each of these two vectors contains a two-member vector for each feature point. That is, the result is a data structure in the form of \detokenize{std::vector < std::vector < cv::CMatch > >}. This concept is shown in \autoref{fig:brute_force}
+
+  \begin{figure}[H]
+  \centering
+  \includegraphics[width=100mm]{figures/brute_force}
+  \caption{The concept of brute force matching}\label{fig:brute_force}
+  \end{figure}
   % TODO: Image
-  \item Nearest Neighbor Matching (Ratio Test): The second layer of our outlier-removal technique is the ratio test. In this layer, for each feature point, we have two candidate matches in the other image, resulting from previous layer. These are the two best ones based on the distance between their descriptors. If this measured distance is very low for the best match, and much larger for the second best match, we can safely accept the first match as a good one since it is unambiguously the best choice. On the other hand, if the two best matches are relatively close in distance, then there exists a possibility that we make an error if we select one over the other. In this case, we should reject both matches. Here, we perform this test in layer two by verifying that the ratio of the distance of the best match over the distance of the second best match is not greater than a given threshold. A large number of ambiguous matches will be eliminated by this procedure. After several execution of this method, the best threshold set as 0.8.
+  \item Nearest Neighbor Matching (Ratio Test): The second layer of our outlier-removal technique is the ratio test. In this layer, for each feature point, we have two candidate matches in the other image, resulting from previous layer. These are the two best ones based on the distance between their descriptors. If this measured distance is very low for the best match, and much larger for the second best match, we can safely accept the first match as a good one since it is unambiguously the best choice. On the other hand, if the two best matches are relatively close in distance, then there exists a possibility that we make an error if we select one over the other. In this case, we should reject both matches. Here, we perform this test in layer two by verifying that the ratio of the distance of the best match over the distance of the second best match is not greater than a given threshold. A large number of ambiguous matches will be eliminated by this procedure. After several execution of this method, the best threshold set as 0.8. The \autoref{fig:nearest_neighbor} illustrates a schematic view of this matching method.
+
+  \begin{figure}[H]
+  \centering
+  \includegraphics[width=100mm]{figures/nearest_neighbor}
+  \caption{The concept of nearest neighbor matching}\label{fig:nearest_neighbor}
+  \end{figure}
   % TODO: add images
-  \item Symmetric Matching: We now have two relatively good match sets, resulting from the previous layer: one from the first image to second image and the other one from second image to the first one. From these sets, we will now extract the matches that are in agreement with both sets. This is the symmetrical matching scheme imposing that, for a match pair to be accepted, both points must be the best matching feature of the other. The result of this layer is yet another reduction in the size of matching feature points vector.
+  \item Symmetric Matching: We now have two relatively good match sets, resulting from the previous layer: one from the first image to second image and the other one from second image to the first one. From these sets, we will now extract the matches that are in agreement with both sets. This is the symmetrical matching scheme imposing that, for a match pair to be accepted, both points must be the best matching feature of the other. The result of this layer is yet another reduction in the size of matching feature points vector. The symmetric concept is demonstrated in \autoref{fig:robust_feature_matching}.
+
+  \begin{figure}[H]
+  \centering
+  \includegraphics[width=100mm]{figures/symmetric}
+  \caption{The concept of symmetric matching}\label{fig:symmetric}
+  \end{figure}
+
   \item Epipolar Constraint Matching: The last layer now consists of an additional filtering test that will this time use the fundamental matrix in order to reject matches that do not obey the epipolar constraint. This test is based on the RANSAC method that can compute the fundamental matrix even when outliers are still present in the match set. For this layer we use the \detokenize{cv::findFundamentalMat} function with Ransacs. This function has two extra parameters. The first one is the confidence level that determines the number of iterations to be made. The second one is the maximum distance to the epipolar line for a point to be considered as an inlier. All matched pairs in which a point is at a distance from its epipolar line larger than the specified threshold will be reported as an outlier. Therefore, the function also returns a \detokenize{std::vector} of char values indicating that the corresponding match has been identified as an outlier (0) or inlier (1). The inlier points regarding to this mask array and input points that come from symmetric matching are selected as the final vector in structure of \detokenize{cv::DMatch}. This vector illustrate the robust feature matches between the image pair.
 \end {enumerate}
 
+The \autoref{fig:robust_feature_matching} shows the data flow of robust feature matching that is designed for Ubitrack framework.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=60mm]{figures/robust_feature_matching}
+  \caption{The data flow of robust feature matching}\label{fig:robust_feature_matching}
+\end{figure}
+
 \section {Method Implementation}
-In the previous section, the operation of robust feature matching was described. How it works and how the different layers are connected together to reach the final result. In this section the implementation's procedure and requirements for them are explained. One of the goals on this master thesis is adding the robust feature matching to Ubitrack framework. For this purpose at first we ported the A-KAZE feature descriptor to Ubitrack. The new class is called cvAKAZEFeature. Then, a matcher class for A-KAZE was developed which is a connection between the cvAKAZEFeature and robust feature matching. The name of this class is cvAKAZEFeatureMatcher. In fact, this class take two vectors of A-KAZE features from cvAKAZEFeature and sends them to robust feature matching to find out the final match vector. In the following, the procedure and structure of each of these classes will be described in detail:
+In the previous section, the operation of robust feature matching was described. How it works and how the different layers are connected together to reach the final result. In this section the implementation's procedure and requirements for them are explained. One of the goals on this master thesis is adding the robust feature matching to Ubitrack framework. For this purpose at first the A-KAZE feature descriptor is added to Ubitrack as the cvAKAZEFeature (\autoref{subsec:cv_akaze_feature}). Then a matcher class based on our robust feature matching are developed for both binary and float descriptors. In this thesis sometimes, in addition of matching of 2D feature descriptor vectors, we need to match a 3D feature descriptor vector with a 2D feature descriptor vector or match two 3D feature descriptor vectors. In the following, these three functions will be described with more detail.
 
-\subsection {cvAKAZEFeature}
-% TODO: master thesis reference
-% TODO: Ubitrack
-In Ubitrack, some basic classes that represent the feature descriptor and feature matching, were implemented by Sven Barth in his master thesis with title "Flexible and Extensible Feature Tracking Architecture for the Ubitrack Framework". The basic class of that implementation is an abstract class with name FeatureBase. This class is used for dynamic casting between different kind of feature points that we have.
-The next class in this hierarchy that is inherited from FeatureBase is Feature class. The Feature class that consists of a  \detokenize{boost::shared_ptr} of FeatureBase that represents the location of a feature point and a \detokenize{Math::Pose} object that is used for storing the position of the object relative to the camera. The \detokenize{Math::Pose} involves rotation and translation matrices. To cover the OpenCV feature point (implemented by OpenCV), class OpenCVFeature is extended from Feature class. It consists of a \detokenize{cv::keypoint} for storing the data of feature point and \detokenize{cv::Mat} for its feature descriptor vector (binary or float). The cvAKAZEFeature is a sub class of OpenCVFeature that is used for saving the value of AKAZE's feature point and descriptor. The \autoref{fig:cv_akaze} illustrates the hierarchy of cvAKAZEFeature.
+% Then, a matcher class for A-KAZE was developed which is a connection between the cvAKAZEFeature and robust feature matching. The name of this class is cvAKAZEFeatureMatcher. In fact, this class take two vectors of A-KAZE features from cvAKAZEFeature and sends them to robust feature matching to find out the final match vector. In the following, the procedure and structure of each of these classes will be described in detail:
 
+\subsection {Robust Feature Matching 2D 2D} \label{subsec:robust_feature_matching_2D_2D}
+The entry parameters of this function are two vector of 2D feature descriptor. The input feature points are taken from cvAKAZEFeature module. The outliers are removed from the input feature points and finally the robust matches vector is returned as the final result. In addition, sometimes we need to return a vector of feature points that are robust. for this one, at the first, the robust matches vector is computed and then the inliers feature point of the second image are collected and returned as the robust feature points. The \autoref{fig:robust_feature_matching_2D_2D} illustrates the concept of robust feature matching that we used for two vectors of 2D feature points.
+
+ \begin{figure}[H]
+  \centering
+  \includegraphics[width=60mm]{figures/robust_feature_matching_2D_2D}
+  \caption{The data flow of robust feature matching 2D 2D}\label{fig:robust_feature_matching_2D_2D}
+\end{figure}
+
+\subsection {Robust Feature Matching 2D 3D} \label{subsec:robust_feature_matching_2D_3D}
+conceptually similar to the robust feature matching 2D 2D, this module is used for matching a 3D and 2D vectors of feature descriptors. At first, we need to project the 3D feature points into 2D feature points. For this purpose the input pose is applied to project the 3D feature points into the desire frames. After that we have two vectors of 2D feature points and we can use of robust feature matching 2D 2D. As the mater of fact, the robust feature matching 2D 3D is a wrapper to just project 3D points into 2D points. The rest necessary operations are similar to robust feature matching 2D 2D. The \autoref{fig:robust_feature_matching_2D_3D} is the data flow of robust feature matching 2D 3D.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=55mm]{figures/cv_akaze}
-  \caption{The hierarchy of cvAkazeFeature class in Ubitrack Framework}\label{fig:cv_akaze}
+  \includegraphics[width=60mm]{figures/robust_feature_matching_2D_3D}
+  \caption{The data flow of robust feature matching 2D 3D}\label{fig:robust_feature_matching_2D_3D}
 \end{figure}
- 
-% \subsection {cvAKAZEFeatureMatcher}
-\subsection {RobustFeatureMatching} \label{subsec:robust_feature_matching}
-This part is about the implementation of our feature matching in Ubitrack Framework. Firstly, one abstract class with name RobustFeatureMatching is implemented. This class is cornerstone of our idea. As it was mentioned in previous section, two types of descriptors exist. The binary descriptor and the float descriptor. Two classes RobustFetureMatchingBitVecFeatureBase and RobustFetureMatchingFloatFeatureBase were extended to support both types of descriptors. Both of them contains four functions for processing the brute force, nearest neighbor, symmetric and epipolar constraint matching layers. The output of each function is the input of next function and all functions call consecutively.The \autoref{fig:cv_akaze_matching} show the structure of RobustFeatureMatching in Ubitrack Framework.
 
+\subsection {Robust Feature Matching 3D 3D} \label{subsec:robust_feature_matching_3D_3D}
+This function takes two vectors of 3D feature points. both of them are projected to one image frame with using the input camera pose. The obtained 2D feature point vectors are matched by a robust feature matching 2D 2D. The matches vector is returned as the result. Usually the inliers 3D points in the second 3D feature vector are selected as the robust feature points. This concept is shown in \autoref{fig:robust_feature_matching_3D_3D}.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=140mm]{figures/robust_feature_matching}
-  \caption{The hierarchy of RobustFeatureMatching class in Ubitrack Framework}\label{fig:cv_akaze_matching}
+  \includegraphics[width=60mm]{figures/robust_feature_matching_3D_3D}
+  \caption{The data flow of robust feature matching 3D 3D}\label{fig:robust_feature_matching_3D_3D}
 \end{figure}
+% \subsection {RobustFeatureMatching} \label{subsec:robust_feature_matching}
+% This part is about the implementation of our feature matching in Ubitrack Framework. Firstly, one abstract class with name RobustFeatureMatching is implemented. This class is cornerstone of our idea. As it was mentioned in previous section, two types of descriptors exist. The binary descriptor and the float descriptor. Two classes RobustFetureMatchingBitVecFeatureBase and RobustFetureMatchingFloatFeatureBase were extended to support both types of descriptors. Both of them contains four functions for processing the brute force, nearest neighbor, symmetric and epipolar constraint matching layers. The output of each function is the input of next function and all functions call consecutively.The \autoref{fig:cv_akaze_matching} show the structure of RobustFeatureMatching in Ubitrack Framework.
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=140mm]{figures/robust_feature_matching}
+%   \caption{The hierarchy of RobustFeatureMatching class in Ubitrack Framework}\label{fig:cv_akaze_matching}
+% \end{figure}
 
 
 \section {Method Evaluation}

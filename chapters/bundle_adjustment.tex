@@ -95,6 +95,13 @@ In the following the conversion functions that convert the data structures betwe
 \item \textbf{copyCvPoint3d2UbitrackVec3:} To convert the optimized 3D points from the OpencCV system to Ubitrack Framework. It is not necessary to convert the rest matrices or vectors from OpenCV to Ubitrack because in all cases, the 3D points are optimized (The type of optimization is \detokenize{Sba::STRUCTURE}).
 \end{itemize}
 
+\autoref{fig:bundle_adjustment} represents an overall view of our bundle adjustment.
+ \begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/bundle_adjustment}
+  \caption{An overall view of bundle adjustment based on cvsba that was implemented in Ubitrack}\label{fig:bundle_adjustment}
+  \end{figure}
+
 Except of converting the 2D points for matching the coordinate system between Ubitrack and OpenCV, the rotation and translation matrices also should be rotated $180 ^{\circ}$ around the Z axis. The conversion matrix for rotation is defined as below:
 \begin{gather*}
 	Rotation_{(Ubitrack)} = R_{z}(180) * Rotation_{(OpenCV)}\\

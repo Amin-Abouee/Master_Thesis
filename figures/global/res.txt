@@ -1,0 +1,10 @@
+Translation
+markerless 20-> Mean:1.6392  - Std:1.3589
+markerless 35-> Mean:1.3303  - Std:1.1184
+markerless 50-> Mean:1.4071  - Std:1.1697
+Ubitrack-> Mean:10.1552  - Std:0.9700
+Rotation
+markerless 20-> Mean:0.0034  - Std:0.0029
+markerless 35-> Mean:0.0019  - Std:0.0015
+markerless 50-> Mean:0.0025  - Std:0.0020
+Ubitrack-> Mean:0.0040  - Std:0.0006
