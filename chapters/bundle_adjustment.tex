@@ -139,7 +139,7 @@ The data set is a video sequence that is grabbed from a board consisting of 10 m
 \caption{Some samples of marker data set}\label{fig:marker_ground_truth}
 \end{figure}
 
-For evaluation, we created two sample data sets, each involving ten images. The images in each sample data set are selected randomly from the original ground truth data set. For each sample data set, the euclidean error of all four points of each markers are calculated and compared to the ground truth. These euclidean errors are drown on a graph after each step of optimization ( \autoref{fig:test_1_ba} and  \autoref{fig:test_2_ba}).
+For evaluation, we created two sample data sets, each involving ten images. The images in each sample data set are selected randomly from the original ground truth data set. For each sample data set, the euclidean error of all four points of each markers are calculated and compared to the ground truth. These euclidean errors are drown on a graph after each step of optimization (\autoref{fig:test_1_ba} and \autoref{fig:test_2_ba}).
 
 \subsection{Results of Test 1 and Test 2} \label{subsec:result_ba}
 \autoref{fig:test_1_ba} and \autoref{tab:test_1_ba} illustrates the significant impact of bundle adjustment on the raw input data. As can be seen, using the bundle adjustment already decreases the error significantly after the second frame. After the second bundle adjustment the mean error for all markers drops from 32.7776 milliliters to 10.2463 milliliters. Standard deviation also decreases from 44.4860 to 3.9315. After the second bundle adjustment, the speed of convergence becomes slower and the trend becomes stable after the seventh bundle adjustment with 9.1938 and 3.9919 milliliters for mean and standard deviation respectively.

@@ -61,7 +61,7 @@ Zheng et.al \cite{zheng2013revisiting} listed some PnP solutions that rely on th
 \begin{figure}[H]
   \centering
   \includegraphics[width=140mm]{figures/pnp}
-  \caption{PnP problem: Finding the pose of camera relative to the world coordinate \footnote{\url{http://docs.opencv.org/trunk/doc/tutorials/calib3d/real_time_pose/real_time_pose.html}} \label{fig:pnp_sample}
+  \caption{PnP problem: Finding the pose of camera relative to the world coordinate.} \label{fig:pnp_sample}
 \end{figure}
 
 
@@ -71,30 +71,23 @@ This section explains the operation of the feature point-based tracking system. 
 \subsection{The bundle concept}
 As already was mentioned in previous chapters, there are many approaches for feature point-based tracking. PTAM \cite{klein2007parallel} is a well-known approach for tracking the pose in AR workspace. The important point of this technique is that the tracking and mapping are separated and run in two parallel threads. In the case of mapping phase, the obtained 3D world map is optimized by a bundle adjustment after each new frame. The result of bundle adjustment for the market-based tracking in Ubitrack illustrates that the noisy data including the noise in images and also mismatch in matches vector have a negative effect on that.\\
 Based on our experience about the result of bundle adjustment for the marker-based tracking (\autoref{subsec:result_ba}), we decided to use the bundle adjustment for a group of images instead of two or three images. For this purpose and after of several tests over the result of bundle adjustment, the input frames are grouped into the same small packages, usually five frames, that is called a bundle. The size of the bundle is a parameters in our approach and we called it local threshold. Based on our evaluation (shown in \autoref{sec:local_threshold}) 5 is the best value for local threshold.\\
-The feature points of each frame are extracted by A-KAZE feature detection and extraction. After that the robust feature matching is applied to filter out the outliers between the robust feature points of previous frames (***REFRENCE To SECTION***) and new frame. For instance for a bundle with size five frames we execute the robust feature matching four times: between the first and the second; the resulting roust feature points with the third frames; the resulting roust feature points with the forth frames; and finally the resulting robust feature points from all previous matching with the fifth frame. \\
-% TODO: Image
- After this step a recursive function is used to identify the feature points that are available in all frames of a bundle. These feature points are called the elite feature point. The 3D points are reconstructed by using the elite feature points of each bundle and the pose of the corresponding cameras. After that, the pose of each camera is optimized by a non-planner pose optimization (PnP solution) to enhance the rotation and translation matrices based on the resulting 3D points.A cvsba bundle adjustment with the type Sba::STRUCTURE (local bundle adjustment) is applied to refine the 3D points based on the new camera poses. The final 3D points are added to or updated in the 3D world Map.\\
-\autoref{fig:bundle_concept} illustrates a schematic view (data flow) of our bundle concept.
+The feature points of each frame are extracted by A-KAZE feature detection and extraction. 
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{figures/bundle_concept}
-  \caption{The data flow of the bundle concept}\label{fig:bundle_concept}
-\end{figure}
 
-\subsection{Pose estimation for the first bundle}\label{subsec:pose_first_bundle}
-Based on the new bundle concept that was introduced in previous section, all input frames are grouped into five frames and are processed independent of other bundles. In this section, we describe the operations that are necessary for first bundle.\\
-First of all, we need to determine a prior estimation for the pose of each camera for the 3D reconstruction. Two approaches are considered to compute the initiate pose for each camera inside a bundle. They are listed as follows:
-\begin{enumerate}
-\item Initiate pose from the reference system: the pose of all cameras are provided by the reference system.
-\item Initiate pose estimation by planner tracking: in this method the pose of the first camera is taken from the pose system and converted to the corresponding homography matrix. The pose of the rest cameras are computed consequently relying on the approach that was explained in \autoref{subsec:pose_estimation_planer_tracking}.
-\end{enumerate}
-Based on a comparison between these two approaches that will be presented in \autoref{sec:refrence_system}, the first approach is selected for the initiate estimation of camera poses.\\
-As described in previous section, we use the A-KAZE feature detection and extraction along with a a recursive technique to find the elite feature points of a bundle. \\
- For this purpose, we begin from the features of the first and the second frames are matched by a robust feature matching 2D 2D. The output result is a matches vector and a robust feature points (\autoref{subsec:robust_feature_matching_2D_2D}). The outcome robust feature points is a vector of feature points from the second frame, where their feature descriptors are agreement between the both images. The robust feature points between the first and the second frames are matched by another robust feature matching 2D 2D and the new feature points of third frame. This operation is continued consequently for all five frames of this bundle. The final result is a vector of feature points from the last frame (fifth frame) that its feature descriptors are agreement in all five frames. Right now it is the time to select the correspondence elite feature points in the first, second, third and forth frames. Thus we begin from down to up. The matches vector from the last robust feature matching is used to obtain the indices of the elite feature points of forth frame. The rest matches vector also are applied consecutively to obtain the elite feature points of the first, second and third frames. Finally, we have five elite feature points with the same size that their feature points are matched by the robust feature matching. There are mostly close and precise and good data points for 3D reconstruction.\\
- % TODO: (SHOW A PICTURE)
-The elite feature points and the camera pose of all frames are gathered to reconstruct the first 3D set of our environment.
-in Ubitrack, the \detokenize{Algorithm::get3DPositionWithResidual()} function is used for reconstruction. The size of these 3D points are as same as the size of the elite feature points of each camera. In this thesis, because in future we need to compare the 3D points with 2D points, the feature descriptor of 2D point (not matter from which frame, the feature descriptors for all frames are closely similar) is allocated to correspondence 3D point as a measure parameter for comparing a 2D and 3D point. After that, a non-planner pose optimization function which was implemented in UBitrack as the name \detokenize{Ubitrack::Algorithm::PoseEstimation2D3D::optimizePose()} is used to optimized the pose of each camera by using a robust feature matching 2D 3D between the new obtained 3D points and elite feature points of each frame. This function was developed based on a non-planer approach for pose estimation that was proposed in \cite{lu2000fast}.\\
+
+After that the robust feature matching is applied to filter out the outliers between the robust feature points of previous frames (***REFRENCE To SECTION***) and new frames in a recursive way. 
+The recursive function consists of two steps: forward step from frame 1 to frame 5, and backward step from frame 5 to frame 1. Each step consists of 2D-2D matching of feature points between consequent frames. The result of each matching will be used for matching with the next frame. For instance for the forward step of a bundle with five frame we execute the robust feature matching four times: between the first and the second; the resulting roust feature points with the third frames; the resulting roust feature points with the forth frames; and finally the resulting robust feature points from all previous matchings with the fifth frame (******* FIGURE XXXXXXXXXXXXXXXXX ******). The same procedure is applied in the backward step. 
+The result of the recursive robust feature matching function is a vector of robust features for each frame that are also present at all other frames. We call these set of features the \textit{elite feature points}. Note that despite different coordinates in each frame, each elite feature point in each frame has the same feature descriptor (for details about equality of feature descriptors see ******** AUTOR-REF BE OONJAII KE GOFTI CHETOR TO DA FEATURE DESCRIPTOR BA HAM BARABAR HASTAND *******). 
+
+% TODO: Image XXXXXXXXXXXXXXX
+ 
+These elite feature points and the camera pose of all frames are gathered to reconstruct a set of new 3D points of our environment. In Ubitrack, the \detokenize{Algorithm::get3DPositionWithResidual()} function is used for the 3D reconstruction. The size of the resulting 3D points is the same as the size of the elite feature points of each frame. \\
+
+We can also consider 3D points as 3D feature points. For this, for each 3D point the feature descriptor of corresponding elite feature points is allocated to it.  
+
+
+After the 3D reconstruction, a non-planner pose optimization function \cite{lu2000fast} which is implemented in UBitrack under the name \detokenize{Ubitrack::Algorithm::PoseEstimation2D3D::optimizePose()}. This optimization applies a robust 2D-3D feature matching to the elite feature points, pose of each camera, and the obtained 3D points (\autoref{fig:pose_optimization}).  
+
 \autoref{fig:pose_optimization} demonstrates a schematic view of our pose optimization.
 \begin{figure}[H]
   \centering
@@ -102,7 +95,28 @@ in Ubitrack, the \detokenize{Algorithm::get3DPositionWithResidual()} function is
   \caption{The data flow of pose optimization}\label{fig:pose_optimization}
 \end{figure}
 
-For the last step of this scenario, a bundle adjustment is exploited to refine the 3D points as much as we can. The necessary parameters including: the elite feature points of all frames, the optimized camera poses, the first estimation of 3D points and the intrinsic of all cameras are gathered in the Ubitrack bundle adjustment (structure type \autoref{subsec:type_of_optimization}) to optimize the 3D points. The number of iteration is 300 and the minimum of reprojection error is $1\mbox{\textsc{e}}-10$. The final optimized 3D points are added to 3D world map vector. The operation of the first bundle is finished here.
+For the last step of this scenario, a bundle adjustment is used to refine the 3D points. The necessary parameters including the elite feature points of all frames, the optimized camera poses, the estimation of 3D points and the intrinsic of all cameras are passed to the cvsba bundle adjustment with optimization type Sba::STRUCTURE (\autoref{subsec:type_of_optimization}) to optimize the 3D points. The number of iteration is 300 and the minimum of reprojection error is $1\mbox{\textsc{e}}-10$. The final optimized 3D points are added to or updated in the 3D world map vector. This whole process is called a local bundle adjustment, because is applied to only one bundle. \autoref{fig:bundle_concept} illustrates a schematic view (data flow) of our bundle concept.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{figures/bundle_concept}
+  \caption{The data flow of the bundle concept}\label{fig:bundle_concept}
+\end{figure}
+
+
+
+\subsection{Pose estimation for the first bundle}\label{subsec:pose_first_bundle}
+
+Based on the new bundle concept that was introduced in previous section, all input frames are grouped into five frames and are processed independent of other bundles. In this section, we describe the operations that are necessary for the first bundle.\\
+First of all, we need to determine a prior estimation for the pose of each camera for the 3D reconstruction. Two approaches are considered to compute the initiate pose for each camera inside a bundle:
+\begin{enumerate}
+\item Initiate pose from the reference system: the pose of all cameras are provided by the reference system.
+\item Initiate pose estimation by planner tracking: in this method the pose of the first camera is taken from the pose system and converted to the corresponding homography matrix. The pose of the rest cameras are computed consequently relying on the approach that was explained in \autoref{subsec:pose_estimation_planer_tracking}.
+\end{enumerate}
+Based on a comparison between these two approaches as shown in \autoref{sec:refrence_system}, the first approach is selected for the initiate estimation of camera poses.\\
+
+
+
 
 \subsection{Pose estimation for the second bundle} \label{subsec:pose_second_bundle}
 The scenario for processing the second bundle is a little bit different with the first bundle. In the first bundle, the initiate or prior pose have been taken from the reference system whereas the pose estimation of the second bundle's frames are computed by two parts:
