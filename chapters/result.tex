@@ -19,7 +19,7 @@ In this chapter, the obtained results are analyzed in several aspects. At the fi
 As it was mentioned in \autoref{chapter:pose_estimation}, we introduced two threshold parameters which define the size of a bundle and the number of frames that are involved for updating the 3D world map and global bundle adjustment. They called local threshold and global threshold respectively. So just for the first data sample, the performance of local threshold and global threshold with deference of value are evaluated.\\
 At the end, two tracking method for the first bundle that were introduced in \autoref{subsec:pose_first_bundle} are evaluated with first data sample. the first method was about the case in which the reference pose are taken from the reference system and the second was about the case that the pose estimations are computed by the homography matrices.
 
-\subsection{Sample Data Set 1} \label{subsec:sample_1}
+\section{Sample Data Set 1} \label{sec:sample_01}
 This set consists of 80 consequence images that cover all three types of movement and transformation (horizontal and vertical movement, rotation and zooming). in feature-based case, we assume that the reference pose for the first bundle are provided by the reference system.
 
 \begin{figure}[H]
@@ -49,23 +49,23 @@ based on the both \autoref{fig:sample_01} and \autoref{tab:sample_01}, the track
   \includegraphics[width=80mm]{figures/diff_0/graph_translation} &  \includegraphics[width=80mm]{figures/diff_0/graph_rotation} \\
 (a) difference of translation in milliliters & (b) difference of rotation in degree of quaternion \\[6pt]
 \end{tabular}
-\caption{The difference between the Feature-based and Marker-based for each sequence pair of sample data set}\label{fig:sample_01_diff}
+\caption{The difference between the Feature-based and Marker-based for each sequence pair of first sample data set}\label{fig:sample_01_diff}
 \end{figure}
 
 \begin{table}[H]
 \centering
-  \begin{tabular}{| c || c | c | c | c |}
+  \begin{tabular}{| c | c | c | c |}
       \hline
-      & \multicolumn{2}{c}{Translation} & \multicolumn{2}{c}{Rotation} \\ \hline
-       & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
-      Difference between the Feature-based and Marker-based & 0.5089 & 1.3985 & 0.0007 & 0.0016 \\ \hline
+      \multicolumn{2}{|c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
+      0.5089 & 1.3985 & 0.0007 & 0.0016 \\ \hline
   \end{tabular}
   \caption{} \label{tab:sample_01_diff}
 \end{table}
 
-based on the \autoref{tab:sample_01_diff}, you can see that the change of rotation between each pair of images for both methods are closely similar where their mean value is just 0.0007 and it show that the both methods work similarly. For the tracking part, the \autoref{fig:sample_01_diff}(a) illustrates that the difference between these two methods for the first ten images are huge whereas as this distance become steady between the range of 1.5 and ***. It is noticeable that the \autoref{fig:sample_01_diff} is a logarithmic graph.
+based on the \autoref{tab:sample_01_diff}, you can see that the change of rotation between each pair of images for both methods are closely similar where their mean values are just 0.0007 and it show that the both methods work similarly. For the tracking part, the \autoref{fig:sample_01_diff}(a) illustrates that the difference of tracking between these two methods for the first ten images are very high whereas for the rest frames, they become steady around the 0.5 millimeters.
 
-\subsection{Sample Data Set 2}
+\section{Sample Data Set 2} \label{sec:sample_2}
 \begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/frame_400/graph_translation} &  \includegraphics[width=80mm]{figures/frame_400/graph_rotation} \\
@@ -88,15 +88,26 @@ based on the \autoref{tab:sample_01_diff}, you can see that the change of rotati
 
 The result of rotation column of \autoref{fig:sample_02} and \autoref{tab:sample_02}(b) are very important in this master thesis. They show that for some data sets, the rotation estimation and optimization do not work as well as the translation estimation. It might be the result of two things: see a huge rotation that our pose estimation and our PnP solver can not handle it or bad estimation for the rotation of one frame that has a cumulative error on our estimated rotation and has a bad effect on our both local and global bundle adjustment. The tracking part of our figure also says that translation and rotation have a reflective effect together. It means when we have a increase rate for the error of rotation, it consequently has a bad effect for estimating the translation. For precisely, the mean of tracking estimations error before the 50th were around 1.8 millimeters, but when the rotation estimation get worse, the translation goes up from four millimeters to the ten millimeters.
 
-% \begin{figure}[H]
-% \begin{tabular}{cc}
-%   \includegraphics[width=80mm]{figures/diff_400/graph_translation} &  \includegraphics[width=80mm]{figures/diff_400/graph_rotation} \\
-% (a) translation & (b) rotation \\[6pt]
-% \end{tabular}
-% \caption{}\label{fig:sample_02_diff}
-% \end{figure}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=80mm]{figures/diff_400/graph_translation} &  \includegraphics[width=80mm]{figures/diff_400/graph_rotation} \\
+(a) difference of translation in milliliters & (b) difference of rotation in degree of quaternion \\[6pt]
+\end{tabular}
+\caption{The difference between the Feature-based and Marker-based for each sequence pair of second sample data set}\label{fig:sample_02_diff}
+\end{figure}
 
-\subsection{Sample Data Set 3}
+\begin{table}[H]
+\centering
+  \begin{tabular}{| c | c | c | c |}
+      \hline
+      \multicolumn{2}{|c|}{Translation} & \multicolumn{2}{c}{Rotation} \\ \hline
+       Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
+      0.4821 & 0.7839 & 0.0008 & 0.0006 \\ \hline
+  \end{tabular}
+  \caption{} \label{tab:sample_02_diff}
+\end{table}
+
+\section{Sample Data Set 3} \label{subsec:sample_3}
 \begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/frame_600/graph_translation} &  \includegraphics[width=80mm]{figures/frame_600/graph_rotation} \\
@@ -119,16 +130,27 @@ The result of rotation column of \autoref{fig:sample_02} and \autoref{tab:sample
 
 These results prove that our idea about the replacing of 3D points in world map with the new one after each 35 frames was true. Let me to divide the \autoref{fig:sample_03}(a) into 3 parts. for the first seven bundles (frames 1 to 35), second seven bundles (from 36 to 70) and the rest. As you can see in \autoref{fig:sample_03}, the translation error in the first part (first seven bundles) is around the 2.5 millimeters. After that the inefficient results of the rotation that has a dramatical growth, cause the translation estimations also have a jump to the up and the mean of error is set around the 5.5 millimeters. But after the 70th frame and because the whole 3D points in world map are replaced with the new data, the local and global bundle adjustment could control the error of the translation for the next frames and bundles. In the case of rotation, once more is happened that rotation estimation and optimization are not efficient as well as the translation part.
 
-% \begin{figure}[H]
-% \begin{tabular}{cc}
-%   \includegraphics[width=80mm]{figures/diff_600/graph_translation} &  \includegraphics[width=80mm]{figures/diff_600/graph_rotation} \\
-% (a) translation & (b) rotation \\[6pt]
-% \end{tabular}
-% \caption{}\label{fig:sample_03_diff}
-% \end{figure}
+\begin{figure}[H]
+\begin{tabular}{cc}
+  \includegraphics[width=80mm]{figures/diff_600/graph_translation} &  \includegraphics[width=80mm]{figures/diff_600/graph_rotation} \\
+(a) difference of translation in milliliters & (b) difference of rotation in degree of quaternion \\[6pt]
+\end{tabular}
+\caption{The difference between the Feature-based and Marker-based for each sequence pair of third sample data set}\label{fig:sample_03_diff}
+\end{figure}
 
-\subsection{Test Local Threshold}
-In this test, we evaluate the performance of a parameter that describes the number of images in a bundle. This size is called local threshold. In this test we run the first sample data set (\autoref{subsec:sample_1}) for three times with the size of 3, 5, and 7 for a bundle.
+\begin{table}[H]
+\centering
+  \begin{tabular}{| c | c | c | c |}
+      \hline
+      \multicolumn{2}{|c|}{Translation} & \multicolumn{2}{c}{Rotation} \\ \hline
+       Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
+      0.6558 & 1.4589 & 0.0007 & 0.0008 \\ \hline
+  \end{tabular}
+  \caption{} \label{tab:sample_03_diff}
+\end{table}
+
+\section{Test Local Threshold} \label{sec:local_threshold}
+In this test, we evaluate the performance of a parameter that describes the number of images in a bundle. This size is called local threshold. In this test we run the first sample data set (\autoref{sec:sample_01}) for three times with the size of 3, 5, and 7 for a bundle.
 \begin{figure}[H]
 \centering
 \begin{tabular}{cc}
@@ -154,8 +176,8 @@ In this test, we evaluate the performance of a parameter that describes the numb
 
 It is clear that for the both translation and rotation tests, the local threshold with size 5 is winner where the mean of translation is 1.3303 millimeters and for the rotation is 0.0019 degree of quaternion. After that, for the rotation case, the Ubitrack marker-based approach is located in the second place whereas for the translation, the local threshold with size 3 with average 4.5165 is set as the second best candidate. It is noticeable that for the both translations and rotation the Ubitrack marker-based method has the lowest standard deviation among the all methods.
 
-\subsection{Test Global Threshold}
-The next Threshold in our approach is about the number of frames that we process for the global bundle adjustment and updating the 3D points in world map vector. After each global threshold, The 3D points in world map completely replace with the new data. more information was explained in \autoref{update_3d_points}.
+\section{Test Global Threshold}
+The next Threshold in our approach is about the number of frames that we process for the global bundle adjustment and updating the 3D points in world map vector. After each global threshold, The 3D points in world map completely replace with the new data. more information was explained in \autoref{subsec:update_3d_points}.
 \begin{figure}[H]
 \centering
 \begin{tabular}{cc}
@@ -180,7 +202,7 @@ The next Threshold in our approach is about the number of frames that we process
 \end{table}
 The result of global threshold for all cases 20, 35 and 50 are mostly close together. In fact, the result of all values for tracking are same whereas the result of global threshold 35 has the best result for rotation. In this test also the Ubitrack has the lowest standard deviation among all methods that were tested.
 
-\subsection{Reference System}
+\section{Reference System} \label{sec:refrence_system}
 In the last test, we evaluate the performance of a system in which its reference camera poses are taken from ARTrack for the all frames of first bundle compare to the systems that are computed by the planer tracking with the homography matrix.
 \begin{figure}[H]
 \begin{tabular}{cc}
@@ -200,5 +222,13 @@ In the last test, we evaluate the performance of a system in which its reference
       Reference System & \textbf{1.3303} & 1.1184 & \textbf{0.0019} & 0.0015 \\ \hline
       Marker-based Ubitrack & 10.1552 & \textbf{0.9700} & 0.0040 & \textbf{0.0006} \\ \hline
   \end{tabular}
-  \caption{The statistical analysis of feature-based with ARTrack reference pose compare to the planner tracking reference pose} \label{tab:test_global_threshold}
+  \caption{The statistical analysis of feature-based with ARTrack reference pose compare to the planner tracking reference pose} \label{tab:reference_system}
 \end{table}
+
+\section{Future Work}
+In previous sections, the result of our feature-based pose estimation were testes and analyzed. In most of augmented reality applications and for small workspace, the tracking phase and estimating the movement of camera is more important than the rotation. The results of tests show that this approach in significantly robust and precise for all situation and geometric transformation. The drawback point of this technique that you can see in \autoref{fig:sample_02} and \autoref{tab:sample_02} is refereed to this fact that the result of estimated rotation in most of data sets are not efficient. To resolve this problem, it is better to investigate on the new algorithms in this case. Some new approaches were introduced in \autoref{sec:PnP_problem} that their results can improve our estimated rotation. \\
+The other aspect that we can investigate on them is use the dynamic approach for the two local and global threshold. Our result show that the best value for the local and global threshold are 5 and 35 respectively. But sometimes due to lack of the number of the matches vector (for both 3D and 2D) it is better to instead of a fixed number for the local and global threshold, a dynamic mechanism is applied to set the size of these parameters. Simon Gibson and et. al in \cite{gibson2002accurate} introduced a dynamic solution for this purpose as follows:
+\begin{itemize}
+\item When the sequence reached to the end or 10 frames are processed
+\item More than 50\% of the frames are lost. It means the size of matches vector between the $n$ and $n-1$ frames reached to less than the 50\% of matches vector between the first and second frames.
+\end{itemize}
