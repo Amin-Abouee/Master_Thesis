@@ -103,8 +103,6 @@ For the last step of this scenario, a bundle adjustment is used to refine the 3D
   \caption{The data flow of the bundle concept}\label{fig:bundle_concept}
 \end{figure}
 
-
-
 \subsection{Pose estimation for the first bundle}\label{subsec:pose_first_bundle}
 
 Based on the new bundle concept that was introduced in previous section, all input frames are grouped into five frames and are processed independent of other bundles. In this section, we describe the operations that are necessary for the first bundle.\\
@@ -113,16 +111,15 @@ First of all, we need to determine a prior estimation for the pose of each camer
 \item Initiate pose from the reference system: the pose of all cameras are provided by the reference system.
 \item Initiate pose estimation by planner tracking: in this method the pose of the first camera is taken from the pose system and converted to the corresponding homography matrix. The pose of the rest cameras are computed consequently relying on the approach that was explained in \autoref{subsec:pose_estimation_planer_tracking}.
 \end{enumerate}
-Based on a comparison between these two approaches as shown in \autoref{sec:refrence_system}, the first approach is selected for the initiate estimation of camera poses.\\
-
+Based on a comparison between these two approaches as shown in \autoref{sec:refrence_system}, the first approach is selected for the initiate estimation of camera poses. These reference poses (initial pose) are used for the 3D reconstruction as described above. The obtained 3D points are in turn used to optimize the camera poses again (precise pose). The resulting poses and 3D points are used for a local bundle adjustment to create the first set of 3D points of the world map. 
 
 
 
 \subsection{Pose estimation for the second bundle} \label{subsec:pose_second_bundle}
-The scenario for processing the second bundle is a little bit different with the first bundle. In the first bundle, the initiate or prior pose have been taken from the reference system whereas the pose estimation of the second bundle's frames are computed by two parts:
+The scenario for processing the second bundle is a little bit different with the first bundle. In the first bundle, the initial poses have been taken from the reference system whereas the pose estimation of the second bundle's frames are computed by two parts:
 \begin{enumerate}
-\item The prior pose estimation of each camera are computed by the planner tracking (see \autoref{subsec:pose_estimation_planer_tracking}). For instance the pose of sixth camera is computed by the homography matrix between the fifth camera and the sixth camera. The pose of other cameras also are determined by this technique sequentially. 
-\item The points in 3D world map are projected into the image according to the frame's prior pose estimated. The camera pose is updated by these match 3D and 2D points.
+\item The initial pose estimation of each camera are computed by the planner tracking (see \autoref{subsec:pose_estimation_planer_tracking}). For instance the pose of sixth camera (i.e. the first camera of the second bundle) is computed by the homography matrix between the fifth camera and the sixth camera. The pose of other cameras are also determined by this technique sequentially. 
+\item For precise pose estimation the elite feature points of the frames of the second bundle are compared with the 3D points in the world map are projected into the image frames according to the initial pose. The result is a 2D-2D matches vector that is used along with the intrinsic parameters of the camera for a non-linear pose optimization (see \autoref{fig:pose_optimization}). 
 \end{enumerate}
 
 \autoref{fig:pose_estimation_optimization} demonstrates the two steps of pose estimation. The first step is done by planner tracking technique and the second step by pose optimization.
@@ -133,7 +130,7 @@ The scenario for processing the second bundle is a little bit different with the
   \caption{two steps of pose estimation by using the 3D world map}\label{fig:pose_estimation_optimization}
 \end{figure}
 
-The rest operation including: feature extraction, robust feature matching, recursive approach for finding the elite feature points, 3D reconstruction and the local bundle adjustment are exactly the same as the first bundle. 
+The rest operation including: feature extraction, robust feature matching, recursive approach for finding the elite feature points, 3D reconstruction and the local bundle adjustment are exactly the same as the first bundle. The process is repeated for the remaining other bundles. 
 
 \begin{figure}[H]
   \centering
@@ -141,18 +138,20 @@ The rest operation including: feature extraction, robust feature matching, recur
   \caption{The data flow of two connected bundles}\label{fig:bundle_second}
 \end{figure}
 
-\subsection{Update 3D points (world map)} \label{subsec:update_3d_points}
-At the end of each bundle, a set of 3D points are reconstructed. After that, we need to update the 3D world map vector based on these new 3D points. In this thesis, instead of adding the new 3D points to the world map after the each bundle and growing the 3D model of world that is usual in SLAM methods, we just keep the 3D points that are the same as the 3D world map. In more detail, for the first bundle the optimized 3D points directly store into the 3D world map. For the second one, the new optimized 3D points are compared with the 3D world map vector. For this purpose, both 3D sets are projected to the last frame of the last bundle and are compared by a robust feature matching 3D 3D based on their feature descriptors. The new 3D world map is updated by these common 3D points. The size of new 3D world map also drops because we just the common 3D points are considered and the new points ignored.
-In the next step, a bundle adjustment (global bundle adjustment) is applied to refine these 3D points. For global bundle adjustment we need the 2D elite feature points that reconstructed the new 3D world map but matching the indexes of these 3D points and their 2D points is very complicated. To solve this problem, a big data table is used to save the correct index matches between the each 3D points and their elite feature points after the local bundle adjustment.\\
-Regarding to this fact that the corresponding elite feature points of each 3D point right now is known in our data table, the new 3D points are optimized by the global bundle adjustment. The \autoref{fig:global_bundle_adjustment} show an overall view of the global bundle adjustment after the processing of the second bundle.
+\subsection{Updating the 3D points (world map)} \label{subsec:update_3d_points}
+After processing of each bundle, a set of 3D points are reconstructed. After that, we need to update the 3D world map vector based on these new 3D points. In this thesis, instead of adding the new 3D points to the world map and growing the 3D model of the world, as is usual in other SLAM methods, we only keep the 3D points that are that are already present in the 3D world map. In more details, for the first bundle the optimized 3D points are directly stored into the 3D world map. For the second one, the new optimized 3D points are compared with the 3D world map vector. For this purpose, both 3D sets are projected to the last frame of the last bundle and are compared by a robust feature matching 3D-3D based on their feature descriptors to find the common 3D points. The new 3D world map is updated only by these common 3D points. Hence the size of new 3D world map often is decreased because we only consider the common 3D points and the new points or existing points that do not have a match are ignored. The reason for this approach is only keeping those robust 3D points of the world map that are visible from all frames of all bundles. 
+In the next step, a bundle adjustment (global bundle adjustment) is applied to refine these 3D points. For global bundle adjustment we need the 2D elite feature points that reconstructed the new 3D world map. However matching the indices of these 3D points and their corresponding 2D points can be very complicated. To solve this problem, a big data table is used to save the correct index matches between each 3D point and its elite feature points after each local bundle adjustment.\\
+Regarding to this fact that the corresponding elite feature points of each 3D point are now known in our data table, the new 3D points are optimized by a cvsba bundle adjustment with the type Sba::STRUCTURE. The \autoref{fig:global_bundle_adjustment} show an overall view of the global bundle adjustment after the processing of the second bundle.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=120mm]{figures/global_bundle_adjustment}
-  \caption{global bundle adjustment after the second bundle}\label{fig:global_bundle_adjustment}
+  \caption{Global bundle adjustment after the second bundle}\label{fig:global_bundle_adjustment}
 \end{figure}
 
-As was introduced, the 3D points were remained in world map which robustly matched with the new points. Keeping the robust matched points causes the size of world map decreases after each bundle and after a long time (more than 5 bundles) the remain 3D in our world map are not sufficient for mapping phase and pose estimation of the new frame. To prevent of this issue, after each four bundles (20 frames), instead of updating the 3D world map, we just keep the 3D points that are directly computed by local bundle adjustment. For instance, the 3D points of first, second, third and forth bundle are updated by a robust feature matching 3D 3D and global bundle adjustment. But for the fifth bundle, because the size of 3D world map is not enough (usually less than 100 points), the 3D world map is replaced by the new 3D points after the local bundle adjustment directly. This cycle is repeated after processing of each four bundles. The \autoref{fig:mapping_concept} illustrates the updating of 3D world map after five bundles.
+As described above, only those 3D points are kept in the world map which robustly matched with the newly computed 3D points. Keeping the robust matched points causes the size of world map decreases after each bundle and after a long time (more than 5 bundles) the remaining 3D points in our world map are not sufficient for mapping phase and pose estimation of the new frames. To prevent this issue, after each seven bundles (35 frames), instead of updating the 3D world map, we just replace the old world map with the 3D points that are directly computed by the local bundle adjustment. For instance, the 3D points of the first to seventh bundle are updated by the global bundle adjustment. But for the eighth bundle, because the size of 3D world map is not big enough (usually less than 100 points), the 3D world map is replaced by the new 3D points after the local bundle adjustment directly. This cycle is repeated after processing of each seventh bundles. \autoref{fig:mapping_concept} illustrates the updating of 3D world map after seven bundles. 
+
+We call the total number of frames to be processed before replacement of the world map, the \textit{global threshold}. The evaluation results are the best for a global threshold of 35 (\autoref{subsec:global_threshold}).
 
 \begin{figure}[H]
   \centering
@@ -160,4 +159,9 @@ As was introduced, the 3D points were remained in world map which robustly match
   \caption{The value of 3D world map vector after the five bundles}\label{fig:mapping_concept}
 \end{figure}
 
-In this chapter, we introduced a novel feature-based pose estimation approach. The input frames are grouped into bundles and the 3D points of each bundle are reconstructed based on a four layer robust feature matching and bundle adjustment. The 3D points also are updated rely on the fact that just keep the 3D points that are common in both 3D data sets. The 3D world map is refreshed with the new 3D points directly after each five bundles. In the next chapter we will show the result of this innovative approach and compare with the result of marker-based pose estimation, which was implemented in Ubitarck, on the same scenario and data frames.
+\subsection{Summary} \label{subsec:summary}
+
+In this chapter, we introduced a novel feature-based pose estimation approach. The input frames are grouped into bundles and the 3D points of each bundle are reconstructed based on a four layers robust feature matching and bundle adjustment. To achieve a more reliable pose estimation based on the 3D world map only those 3D points are kept in the world map that are available in all frames of all bundles. On the other side to compensate the reduction of the number of 3D points in the world map, after processing seven bundles the 3D world map is refreshed entirely with the new 3D points resulting from local bundle adjustment. 
+
+
+In the next chapter we will show the result of this novel approach and compare it with the results of marker-based pose estimation, which was implemented in Ubitarck, on the same scenario and data frames.
