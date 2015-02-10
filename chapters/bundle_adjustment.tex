@@ -1,8 +1,11 @@
 %!TEX root = main.tex
 \chapter{Bundle Adjustment}\label{chapter:Bundle Adjustment}
-Bundle Adjustment (BA) is a large, nonlinear least-squares problem that was presented by Triggs \cite{triggs2000bundle}. It is often solved as the last step of feature-based structure and motion (SfM) estimation in computer vision algorithms to refine the obtained estimation.\\
-Structure from Motion (SfM) or 3D reconstruction can be defined as a problem of using 2D feature points that are extracted from a set of images depicting the same scene from different viewpoints. The goal of bundle adjustment is to derive the 3D points of environment as well as the camera pose (extrinsic parameters) and the optical characteristics of the camera (camera matrix or intrinsic). BA is an optimization problem on the 3D structure and viewing parameters (i.e., camera pose and possibly intrinsic calibration and radial distortion), that refines the obtained reconstruction with regard to the noise relative to the observed image feature points.\\
-The general idea behind the BA is to minimize the reprojection error between the observed and predicted feature points, which is expressed as the sum of squares of a large number of nonlinear functions. Thus, the minimization is achieved using nonlinear least-squares algorithms. Levenberg-Marquardt (LM) is one of the most successful due to its ease of implementation and its use of an effective damping strategy that gives it the ability to converge quickly from a wide range of initial guesses to the final goal.\\
+Bundle Adjustment (BA) is a large, nonlinear least-squares problem that was presented by Triggs \cite{triggs2000bundle}. It is often solved as the last step of feature-based structure and motion (SfM) estimation in computer vision algorithms to refine the obtained estimation.
+
+Structure from Motion (SfM) or 3D reconstruction can be defined as a problem of using 2D feature points that are extracted from a set of images depicting the same scene from different viewpoints. The goal of bundle adjustment is to derive the 3D points of environment as well as the camera pose (extrinsic parameters) and the optical characteristics of the camera (camera matrix or intrinsic). BA is an optimization problem on the 3D structure and viewing parameters (i.e., camera pose and possibly intrinsic calibration and radial distortion), that refines the obtained reconstruction with regard to the noise relative to the observed image feature points.
+
+The general idea behind the BA is to minimize the reprojection error between the observed and predicted feature points, which is expressed as the sum of squares of a large number of nonlinear functions. Thus, the minimization is achieved using nonlinear least-squares algorithms. Levenberg-Marquardt (LM) is one of the most successful due to its ease of implementation and its use of an effective damping strategy that gives it the ability to converge quickly from a wide range of initial guesses to the final goal.
+
 The complete mathematical background of BA is not subject of this master thesis. There are many libraries that have already implemented the bundle adjustment. In this master thesis, the cvsba \footnote{\url{http://www.uco.es/investiga/grupos/ava/node/39}}, which is an OpenCV wrapper for the well-known Sparse Bundle Adjustment (SBA) library, was ported to Ubitrack Framework. This bundle adjustment is used to refine the 3D Points that are estimated from mapping task of both marker-based and feature based techniques in Ubitrack. The chose of cvsba was mainly because of its compatibility with OpenCV and Ubitrack and furthermore, it showed the best result during our benchmarks.
 
 \section{cvsba}
@@ -52,27 +55,29 @@ double Sba::run (  std::vector<cv::Point3d>& points,
 \end{lstlisting} \label{lst:cvsba}
 For the M cameras and N 3D points, the description of parameters is as follows:
 \begin{itemize}
-\item \textbf{points:} The vector of estimated 3D points. Type:[input/outpu], Size:[N]
-\item \textbf{imagePoints:} The observed 2D points of the same scene but with different viewpoints (cameras). It is notable that the size of 3D points and 2D points for each camera should be the same. In other word, they are the image projection of 3D points in each camera. Type:[input/outpu], Size:[M x N]
-\item \textbf{visibility:} Is a vector of vectors of int and has the same size of imagePoints. Each element is 1 if points[j] is visible on camera i, otherwise it is 0. Type:[input], Size:[M x N] 
-\item \textbf{cameraMatrix:} Is a vector of camera intrinsic matrices. Type:[input/output], Size:[M x (3x3)]
-\item \textbf{R:} The rotation matrix of each camera. Type:[input/output], Size:[M x (3x3)]
-\item \textbf{T:} The translation vector of each camera. Type:[input/output], Size:[M x (3x1)]
-\item \textbf{distCoeffs:} It represents the distortion coefficients of each camera. Type:[input/output], Size:[M x (5x1)]
-\item \textbf{return value:} The return value represents the reprojection error after the bundle adjustment.
+\item \textbf{points:} the vector of estimated 3D points. Type:[input/outpu], Size:[N]
+\item \textbf{imagePoints:} the observed 2D points of the same scene but with different viewpoints (cameras). It is notable that the size of 3D points and 2D points for each camera should be the same. In other word, they are the image projection of 3D points in each camera. Type:[input/outpu], Size:[M x N]
+\item \textbf{visibility:} is a vector of vectors of int and has the same size of imagePoints. Each element is 1 if points[j] is visible on camera i, otherwise it is 0. Type:[input], Size:[M x N] 
+\item \textbf{cameraMatrix:} is a vector of camera intrinsic matrices. Type:[input/output], Size:[M x (3x3)]
+\item \textbf{R:} the rotation matrix of each camera. Type:[input/output], Size:[M x (3x3)]
+\item \textbf{T:} the translation vector of each camera. Type:[input/output], Size:[M x (3x1)]
+\item \textbf{distCoeffs:} it represents the distortion coefficients of each camera. Type:[input/output], Size:[M x (5x1)]
+\item \textbf{return value:} the return value represents the reprojection error after the bundle adjustment.
 \end{itemize}
 
 \subsection{Type of optimization} \label{subsec:type_of_optimization}
-The sba library can run different types of optimizations (\detokenize{Sba::MOTION}, \detokenize{Sba::STRUCTURE}, \detokenize{Sba::MOTIONSTRUCTURE}). Each type of optimization requires some of the input parameters. For instance, \detokenize{Sba::MOTIONSTRUCTURE} is aimed at optimizing both the structure (3D points), and the motion (Intrinsics, Distortion, R and T). However, you can control which of these elements to be effectively optimized using the parameters fixedIntrinsics and fixedDistortion. If you set this parameters to 5, then Intrinsics and Distortion will not be modified at all. Then, the algorithm will only modify the 3D points. However, if you set  fixedIntrinsics and fixedDistortion to 0, then,  the the elements in cameraMatrix, R, T, distCoeffs will also be modified with the new optimized values.
+The sba library can run different types of optimizations (\detokenize{Sba::MOTION}, \detokenize{Sba::STRUCTURE}, \detokenize{Sba::MOTIONSTRUCTURE}). Each type of optimization is used for a specific purpose. For instance, \detokenize{Sba::MOTIONSTRUCTURE} is aimed at optimizing both the structure (3D points), and the motion (R and T) whereas \detokenize{Sba::STRUCTURE} is used just for optimizing the 3D points. likewise, \detokenize{Sba::MOTION} is a type of optimization to just improve the motion parameters (R and T) without any change in 3D points.
+
+Intrinsics and Distortion matrices also can be optimized by using the fixedIntrinsics and fixedDistortion parameters. If these parameters are set to 5, then Intrinsics and Distortion matrices will not be modified at all. Then, the algorithm will only modify the 3D points or R and T rely on the type of optimization. However, if fixedIntrinsics and fixedDistortion are set to 0, then, the elements in cameraMatrix and distCoeffs matrices also will be modified with the new optimized values.
 
 \subsection{Parameters}
 cvsba library and \detokenize{Sba::run()} can be executed by variety of parameters. \detokenize{Sba::Params} is a structure that consists of the following parameters:
 \begin{itemize}
 \item \textbf{Type:} It represents the type of bundle adjustment as mentioned in previous subsection. These parameters is an Enum data structure with default value MOTIONSTRUCTURE for optimization:
 		\begin{itemize}
-			\item MOTIONSTRUCTURE: Both structure {3D points} and motion {R and T} are optimized.
-			\item MOTION: The rotation and translation are optimized. The 3D points are fixed.
-			\item STRUCTURE: The rotation and translation are kept fixed and the 3D points are optimized.
+			\item MOTIONSTRUCTURE: both structure (3D points) and motion (R and T) are optimized.
+			\item MOTION: the rotation and translation are optimized. The 3D points are fixed.
+			\item STRUCTURE: the rotation and translation are kept fixed and the 3D points are optimized.
 		\end {itemize}
 \item \textbf{iterations:} The number of iterations that are necessary for optimization. Default value is 150 iterations.
 \item \textbf{minError:} The minimum reprojection error for termination of process.
@@ -83,7 +88,8 @@ cvsba library and \detokenize{Sba::run()} can be executed by variety of paramete
 The function \detokenize{Sba::setParams}, set the parameters and the function \detokenize{Sba::getParams}, returns the current value of parameters.
 
 \section{Our Implementation}
-The cvsba was implemented based on OpenCV library. Therefor the data structures used for all parameters are the same as OpenCV. One of the goal of this master's thesis is to port the cvsba into Ubitrack Framework. Changing the data structure from OpenCV to Ubitrack and vice versa was a complex task of this master thesis. This was because of the fact, that the origin of Ubitarck is on the right-hand side whereas the openCV is left-hand side. This implied that all data should be converted from right-hand side to left-hand side and vice versa. The other difference between these two libraries is the origin of their coordinate systems. The position of origin (0,0) of image in Ubitrack is in lower left corner while the position of image origin in OpenCV is upper left corner. So all data relative to images such as feature points also should be converted to the other coordinate system.\\
+The cvsba was implemented based on OpenCV library. Therefor the data structures used for all parameters are the same as OpenCV. One of the goal of this master's thesis is to port the cvsba into Ubitrack Framework. Changing the data structure from OpenCV to Ubitrack and vice versa was a complex task of this master thesis. This was because of the fact, that the origin of Ubitarck is on the right-hand side whereas the openCV is left-hand side. This implied that all data should be converted from right-hand side to left-hand side and vice versa. The other difference between these two libraries is the origin of their coordinate systems. The position of origin (0,0) of image in Ubitrack is in lower left corner while the position of image origin in OpenCV is upper left corner. So all data relative to images such as feature points also should be converted to the other coordinate system.
+
 In the following the conversion functions that convert the data structures between the OpenCV and Ubitrack are described:
 \begin{itemize}
 \item \textbf{copyUbitrackVec2cvPoint3d:} converts the 3D points from  (\detokenize{std::vector < Ubitrack::Math::Vector < T, 3 > > &}) of Ubitrack to (\detokenize{std::vector <cv::Point3d> &}) of OpenCV. 
@@ -126,8 +132,10 @@ After converting the 2D points, rotation and translation matrices from Ubitrack 
 
 % TODO: fusion reference about the accuracy
 \section{Result evaluation}
-In this section the performance of cvsba and our implementation for porting it to Ubitrack is evaluated. For this purpose, the estimated 3D points from Ubitrack marker-based pose estimation are optimized and compared with the ground truth data. The Ubitrack marker-based pose estimation was implemented by Sven Barth \cite{barth2014marker}. This feature tracking technique is inspired by PTAM \cite{klein2007parallel} and it works as follow: First, the corners of markers are detected precisely in each frame. Then marker ids and their corners are matched with previous frames. For instance the corners of marker "0272" in frame $i$ is matched with the corner of same marker in frame $j$. After that the corresponding 3D points of these corners are estimated by a 3D reconstruction approach and the pose of camera is calculated.\\
-To evaluate the performance of our implementation for using the cvsba bundle adjustment, after the second frame and when the 3D points of all markers' corners are estimated, the bundle adjustment module is executed to refine the estimated 3D points. The ground truth data are the 3D points provided by FARO Fusion racking device with a measurement error of 0.1 millimeters. The bundle adjustment procedure optimizes the 3D points after the second frame and then our in Python implemented evaluation script compares the optimized 3D points with the ground truth data.\\
+In this section the performance of cvsba and our implementation for porting it to Ubitrack is evaluated. For this purpose, the estimated 3D points from Ubitrack marker-based pose estimation are optimized and compared with the ground truth data. The Ubitrack marker-based pose estimation was implemented by Sven Barth \cite{barth2014marker}. This feature tracking technique is inspired by PTAM \cite{klein2007parallel} and it works as follow: First, the corners of markers are detected precisely in each frame. Then marker ids and their corners are matched with previous frames. For instance the corners of marker "0272" in frame $i$ is matched with the corner of same marker in frame $j$. After that the corresponding 3D points of these corners are estimated by a 3D reconstruction approach and the pose of camera is calculated.
+
+To evaluate the performance of our implementation for using the cvsba bundle adjustment, after the second frame and when the 3D points of all markers' corners are estimated, the bundle adjustment module is executed to refine the estimated 3D points. The ground truth data are the 3D points provided by FARO Fusion racking device with an approximate measurement error of 0.07 millimeters \footnote{\url{http://www.faro.com/en-us/products/metrology/measuring-arm-faroarm/overview}}. The bundle adjustment procedure optimizes the 3D points after the second frame and then our in Python implemented evaluation script compares the optimized 3D points with the ground truth data.
+
 The data set is a video sequence that is grabbed from a board consisting of 10 markers with different ids. \autoref{fig:marker_ground_truth} shows some example images of our test data set.
 \begin{figure}[H]  
 \begin{tabular}{cc}
@@ -141,7 +149,7 @@ The data set is a video sequence that is grabbed from a board consisting of 10 m
 
 For evaluation, we created two sample data sets, each involving ten images. The images in each sample data set are selected randomly from the original ground truth data set. For each sample data set, the euclidean error of all four points of each markers are calculated and compared to the ground truth. These euclidean errors are drown on a graph after each step of optimization (\autoref{fig:test_1_ba} and \autoref{fig:test_2_ba}).
 
-\subsection{Results of Test 1 and Test 2} \label{subsec:result_ba}
+\subsection{Results of Test 1} \label{subsec:result_ba_1}
 \autoref{fig:test_1_ba} and \autoref{tab:test_1_ba} illustrates the significant impact of bundle adjustment on the raw input data. As can be seen, using the bundle adjustment already decreases the error significantly after the second frame. After the second bundle adjustment the mean error for all markers drops from 32.7776 milliliters to 10.2463 milliliters. Standard deviation also decreases from 44.4860 to 3.9315. After the second bundle adjustment, the speed of convergence becomes slower and the trend becomes stable after the seventh bundle adjustment with 9.1938 and 3.9919 milliliters for mean and standard deviation respectively.
 
 \begin{figure}[H]
@@ -160,6 +168,7 @@ For evaluation, we created two sample data sets, each involving ten images. The 
   \caption{The mean and standard deviation of error for all markers in each step of execution of bundle adjustment} \label{tab:test_1_ba}
 \end{table}
 
+\subsection{Results of Test 2} \label{subsec:result_ba_2}
 \autoref{fig:test_2_ba} and \autoref{tab:test_2_ba} show the results of the second test. The result of the second test shows however that BA does not necessarily always leads to better results. As can be seen in \autoref{fig:test_2_ba} the error for the makers with ids "0272" and "1C44" is increased after the third frame. Further investigation revealed that the error noise in the input image (blurring) was the reason of this effect. This shows that obviously the error noise can have negative effects on the results of the bundle adjustment. 
 
 \begin{figure}[H]
