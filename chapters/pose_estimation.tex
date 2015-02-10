@@ -151,7 +151,7 @@ Regarding to this fact that the corresponding elite feature points of each 3D po
 
 As described above, only those 3D points are kept in the world map which robustly matched with the newly computed 3D points. Keeping the robust matched points causes the size of world map decreases after each bundle and after a long time (more than 5 bundles) the remaining 3D points in our world map are not sufficient for mapping phase and pose estimation of the new frames. To prevent this issue, after each seven bundles (35 frames), instead of updating the 3D world map, we just replace the old world map with the 3D points that are directly computed by the local bundle adjustment. For instance, the 3D points of the first to seventh bundle are updated by the global bundle adjustment. But for the eighth bundle, because the size of 3D world map is not big enough (usually less than 100 points), the 3D world map is replaced by the new 3D points after the local bundle adjustment directly. This cycle is repeated after processing of each seventh bundles. \autoref{fig:mapping_concept} illustrates the updating of 3D world map after seven bundles. 
 
-We call the total number of frames to be processed before replacement of the world map, the \textit{global threshold}. The evaluation results are the best for a global threshold of 35 (\autoref{subsec:global_threshold}).
+We call the total number of frames to be processed before replacement of the world map, the \textit{global threshold}. The evaluation results are the best for a global threshold of 35 (\autoref{sec:global_threshold}).
 
 \begin{figure}[H]
   \centering
