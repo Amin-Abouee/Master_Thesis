@@ -8,7 +8,7 @@ Both previous approaches and generally the other solutions for feature matching 
 
 One of the critical parts in this master thesis is the implementation of a robust and accurate feature matching procedure that run in real-time and become compatible with OpenCV and Ubitrack. This part is very important because the rest parts completely depend on the feature matching. In following, we introduce a novel multilayer matcher that removes outliers substantially.
 
-\section {Our Method}
+\section {Our Method} \label{sec:our_method}
 This novel feature matching consists of four consecutive layers. In this approach, we solve the feature point matching problem and we will explain how to exploit the epipolar constraint between two views to match image features more reliably.\\
 The principle we will follow is simple: when we match feature points between two images, we only accept those matches that fall onto the corresponding epipolar lines. However, to be able to check this condition, the fundamental matrix must be known, and we need good matches to estimate this matrix. To reach a good matches before the fundamental matrix, three layers of outliers-removal is used. At first a brute force matching is applied that find the best two candidate for each feature points. After that by using the nearest neighbor method and the symmetric checking, a good matches vector is created for using in fundamental matrix.
 In the following, each layer is described in detail:
