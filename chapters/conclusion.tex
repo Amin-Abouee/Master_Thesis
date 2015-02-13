@@ -1,0 +1,25 @@
+%!TEX root = main.tex
+\chapter{Conclusion}\label{chapter:conclusion}
+
+In this thesis, a novel feature-based approach for pose estimation of a monocular camera was introduced and added to Ubitrack framework. At the first step, we developed a robust, accurate and multi layers technique for feature matching. The evaluation result of this method illustrated that the feature points of two images with the short base-line were matched averagely with 95\% of accuracy based on the different ground truth data sets.
+
+Furthermore, the cvsba bundle adjustment was ported to Ubitrack to be used for optimization of 3D points. The cvsba is a OpenCV wrapper bundle adjustment that supports three types of optimization: structure, motion, and structure and motion. The cvsba was applied for optimizing the obtained 3D points from a marker-based pose estimation test. The final result showed that the applied bundle adjustment reduced the reprojecton error of all markers' corners from 30 millimeters to 10 millimeters averagely. 
+
+The final step was about the developing a feature-based pose estimation approach for Ubitrack framework. To overcome the negative effect of noisy and erratic data on 3D reconstruction (mapping) and bundle adjustment, we proposed the bundle concept for the first time. In this concept the input images, were grouped into the small same sized packages (local threshold = 5 frames). By using the robust feature matching and a recursive function, a robust set of 3D points were reconstructed. The 3D points were used for optimizing the initial pose of each camera in a bundle. Finally the local bundle adjustment was exploited to optimize the obtained 3D points. 
+
+The 3D world map vector was updated by the optimized 3D points of each bundle. For this purpose, we only kept the 3D points that were visible in all frames of all bundles and optimized them with the global bundle adjustment. The 3D world map was replaced directly with the resulting 3D points of local bundle adjustment after each seven bundles (global threshold = 35 frames).
+
+The evaluation results showed that this approach estimates the translation of camera better than the marker-based approach. For two of three tests, the translation errors for feature-based approach were 1.33 and 3.83 millimeters whereas the results of marker-based approach were 10.1552 and 7.0932 millimeters. 
+
+The results also showed that the rotation estimation is not as well as the translation. Approximately for all tests, we had a cumulative error for estimating and optimizing the rotation. In one test, the error of estimating the rotation parameters had a negative effect on the translation.
+
+Other evaluation tests also demonstrated that the best size for the bundle is 5 frames. The best results also were obtained when the global threshold was 35 frames. 
+
+\section{Future Work}
+In previous chapter, the results of our feature-based pose estimation were presented and analyzed. In most of augmented reality applications for a small workspace, estimating the translation of camera is more important than the rotation. The results of tests showed that this approach in significantly robust and precise for all situations and geometric transformations. As can be seen in the results (e.g. \autoref{fig:sample_02} and \autoref{tab:sample_02} ) the performance of our approach regarding estimation of the rotation is not the best. One reason for this sub-optimal performance might be the rather old implementation of non-linear PnP pose optimization in Ubitrack (i.e. \cite{lu2000fast}). To resolve this problem, we suggest investigation of new algorithms for PnP problem. Some new approaches were introduced in \autoref{sec:PnP_problem} that their results can improve our estimated rotation.
+
+The other aspect that we can investigate on, is the use of the dynamic approach for the two local and global thresholds. Our results show that the best value for the local and global threshold are 5 and 35 frames respectively. But sometimes due to the decrease of the size of the matches vector (for both 3D and 2D) it is better to apply a dynamic mechanism for setting the size of these parameters, instead of a fixed number for the local and global thresholds. Simon Gibson and \textit{et. al} in \cite{gibson2002accurate} introduced a dynamic solution for this purpose as follows:
+\begin{itemize}
+\item When the sequence reached to the end or 10 frames are processed
+\item More than 50\% of the frames are lost. It means the size of matches vector between the $n$ and $n-1$ frames reached less than the 50\% of matches vector between the first and second frames.
+\end{itemize}
