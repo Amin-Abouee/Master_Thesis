@@ -51,11 +51,11 @@ The Ubitrack Framework \footnote {\url{http://campar.in.tum.de/UbiTrack/WebHome}
 \item Data Flow Graph (DFG): is used for executing in the system. it s based on the Ubiquitous Tracking Query Language (UTQL). Each node of this graph, represents a component of the our system (e.g. a list of 2D feature points or an image) and the directed edge reprents a directed communication between two nodes. 
 \end{itemize}
 
- \autoref{fig:ubitrack} shows an example SRG pattern which represents the pose of camera relative to the world (see \autoref{fig:pnp_sample}). The graph consists of two nodes: camera and world. The input edge (dotted line) transmits a pose 6D measurement(6 degrees of freedom for rotation and translation) from world to the camera node.
+ \autoref{fig:ubitrack} shows an example SRG pattern which represents the pose of camera relative to the world (see \autoref{fig:pnp_sample}). The graph consists of two nodes: camera and world. The input edge (dotted line) transmits a 6D pose Measurement (6 degrees of freedom for rotation and translation) from world to the camera node.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=100mm]{figures/ubitrack}
+  \includegraphics[width=70mm]{figures/ubitrack}
   \caption{Example SRG pattern: the pose of camera relative to the world} \label{fig:ubitrack}
 \end{figure}
 
