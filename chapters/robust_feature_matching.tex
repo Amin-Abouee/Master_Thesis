@@ -9,7 +9,8 @@ Both previous approaches and generally the other solutions for feature matching 
 One of the critical parts in this master thesis is the implementation of a robust and accurate feature matching procedure that run in real-time and become compatible with OpenCV and Ubitrack. This part is very important because the rest parts completely depend on the feature matching. In following, we introduce a novel multilayer matcher that removes outliers substantially.
 
 \section {Our Method} \label{sec:our_method}
-This novel feature matching consists of four consecutive layers. In this approach, we solve the feature point matching problem and we will explain how to exploit the epipolar constraint between two views to match image features more reliably.\\
+This novel feature matching consists of four consecutive layers. In this approach, we solve the feature point matching problem and we will explain how to exploit the epipolar constraint between two views to match image features more reliably.
+
 The principle we will follow is simple: when we match feature points between two images, we only accept those matches that fall onto the corresponding epipolar lines. However, to be able to check this condition, the fundamental matrix must be known, and we need good matches to estimate this matrix. To reach a good matches before the fundamental matrix, three layers of outliers-removal is used. At first a brute force matching is applied that find the best two candidate for each feature points. After that by using the nearest neighbor method and the symmetric checking, a good matches vector is created for using in fundamental matrix.
 In the following, each layer is described in detail:
 \begin {enumerate}
@@ -62,7 +63,7 @@ The entry parameters of this function are two vectors of 2D feature descriptor. 
 \end{figure}
 
 \subsection {Robust Feature Matching 2D-3D} \label{subsec:robust_feature_matching_2D_3D}
-conceptually similar to the robust feature matching 2D-2D, this module is used for matching a 3D and 2D vectors of feature points. At first, we need to project the 3D feature points into 2D feature points. For this purpose the input pose is applied to project the 3D feature points into the desire frames. After that we have two vectors of 2D feature points and we can use of robust feature matching 2D-2D. In fact, the robust feature matching 2D 3D is a wrapper to just project 3D points into 2D points. The rest necessary operations are similar to robust feature matching 2D-2D. The \autoref{fig:robust_feature_matching_2D_3D} is the data flow of robust feature matching 2D-3D.
+conceptually similar to the robust feature matching 2D-2D, this module is used for matching a 3D and 2D vectors of feature points. At first, we need to project the 3D feature points into 2D feature points. For this purpose the input pose is applied to project the 3D feature points into the desire frames. After that we have two vectors of 2D feature points and we can use of robust feature matching 2D-2D. In fact, the robust feature matching 2D-3D is a wrapper to just project 3D points into 2D points. The rest necessary operations are similar to robust feature matching 2D-2D. The \autoref{fig:robust_feature_matching_2D_3D} is the data flow of robust feature matching 2D-3D.
 \begin{figure}[H]
   \centering
   \includegraphics[width=60mm]{figures/robust_feature_matching_2D_3D}
@@ -107,7 +108,17 @@ In previous section, a new approach for feature matching was proposed that we ca
 \caption{Data set. Examples of images used for the evaluation: (a) blur, (b) zoom + rotation, (c) viewpoint change, (d) zoom + rotation, (e) light change and (f) JPEG compression.}\label{fig:matching_dataset_oxford}
 \end{figure}
 
-Regarding to description of ground truth data set in \cite{mikolajczyk2005comparison}, the viewpoint change test varies from a fronto-parallel view to one with significant foreshortening at approximately 60 degrees to the camera. The scale change and blur sequences are acquired by varying the camera zoom and focus respectively. The scale changes by about a factor of four. The light changes are introduced by varying the camera aperture. The JPEG sequence is generated using a standard xv image browser with the image quality parameter varying from 40\% to 2\%. Each of the test sequences contains 6 images with a gradual geometric or photometric transformation. All images are of medium resolution (approximately 800 x 640 pixels). The images are either of planar scenes or the camera position is fixed during acquisition, so that in all cases the images are related by homographies (plane projective transformations). This means that the mapping between each pair of images is known (or can be computed). This mapping is used to determine ground truth matches. All the images as well as the computed homographies are available on the website.
+Regarding to description of ground truth data set in \cite{mikolajczyk2005comparison}, the transformation parametrs were provided as follow:
+
+\begin{itemize}
+\item viepoint change: this test changes from a fronto-parallel view to one with significant foreshortening at approximately 60 degrees to the camera.
+\item scale: is provided by changing the camera zoom by about a factor of four.
+\item zoom:  is provided by changing the camera focus.
+\item light: the light varies are introduced by changing the camera apertur.
+\item JPEG compression: is generated using a standard xv image browser with the image quality parameter varying from 40\% to 2\%.
+\end{itemize}
+
+All images are of medium resolution (approximately 800 x 640 pixels). The images are either of planar scenes or the camera position is fixed during acquisition, so that in all cases the images are related by homographies (plane projective transformations). This means that the mapping between each pair of images is known (or can be computed). This mapping is used to determine ground truth matches. All the images as well as the computed homographies are available on the website.
 
 For performance evaluation, there are some measurement techniques (\cite{mikolajczyk2005comparison} \cite{mikolajczyk2005performance}) such as repeatability score, precision-recall, speed-up and time that here, the repeatability score and computational time were considered as evaluation criteria.
 
@@ -115,14 +126,14 @@ Generally to evaluate the obtained feature matcher, we calculated the euclidean 
 \begin{figure}[H]
   \centering
   \includegraphics[width=100mm]{figures/euclidean_distance}
-  \caption{The red line, represents the euclidean distance between the projected feature point by ground truth homography and estimated feature point by feature matching. }\label{fig:euclidean_distance_error}
+  \caption{The difference between the projected feature point by ground truth homography and estimated feature point by robust feature matching (red line).}\label{fig:euclidean_distance_error}
 \end{figure}
 
 In this thesis two important parameters characterize the performance of robust feature matching:
 \begin{itemize}
-  \item Repeatability: is the ratio number of correct matches in images under different geometric and photometric transformations. We say two feature points are matched if the euclidean distance between the projected feature point and estimated feature point are less that 2 pixel. The 2 pixel are selected as a threshold because in some resources and comparison tests (OpenCV sample test \footnote{\url{http://docs.opencv.org/trunk/doc/tutorials/features2d/akaze_matching/akaze_matching.html}}) the threshold is set 2 or 2.5 pixels. 
+  \item Repeatability: is the ratio number of correct matches in images under different geometric and photometric transformations. We say two feature points are matched if the euclidean distance between the projected feature point and estimated feature point are less that 2 pixel. The 2 pixels are selected as a threshold because in some resources and comparison tests (OpenCV sample test \footnote{\url{http://docs.opencv.org/trunk/doc/tutorials/features2d/akaze_matching/akaze_matching.html}}) the threshold is set 2 or 2.5 pixels. 
 
-  $$repeatability\_score = \frac{\# correct matches}{\# correspondences}$$
+  $$repeatability\_score = \frac{\# correct\_matches}{\# correspondences}$$
   \item Cumulative Time: is the computational cost for execution of each layer. It computed by the computational time of all previous layers plus the current one. For instance the cumulative time for symmetric layer is equal to the time of brute force + time of nearest neighbor + time of symmetric matching. All the measurements have been taken on a 2.4 GHz Intel core i5, 4 GB RAM, Mac osx 10.9.5, the code also is compiled by the Clang version 6.0 (600.0.56).
 \end{itemize}
 
@@ -138,7 +149,7 @@ In the following, the performance of each layer of our feature matching in the c
  \includegraphics[width=75mm]{figures/leuven_brute_1_3} &  \includegraphics[width=75mm]{figures/ubc_brute_1_3} \\
 (e) Leuven(light) & (f) UBC(JPEG compression) \\[6pt]
 \end{tabular}
-\caption{The brute force matching layer for different image transformations}\label{fig:brute_force_matching}
+\caption{The brute force matching layer for all data sets}\label{fig:brute_force_matching}
 \end{figure}
 
 \begin{table}[H]
@@ -150,7 +161,7 @@ In the following, the performance of each layer of our feature matching in the c
       repeatability score & 0.615342 & 0.102564 & 0.173057 & 0.247157 & 0.45198 & 0.877085\\ \hline
       cumulative time (ms) & 151.445 & 65.602 & 637.152 & 1716.15 & 122.205 & 638.884 \\ \hline
   \end{tabular}
-  \caption{brute force performance evaluation} \label{tab:brute_force_matching_eval}
+  \caption{Brute force performance evaluation} \label{tab:brute_force_matching_eval}
 \end{table}
 
 As you can see in \autoref{fig:brute_force_matching} and based on \autoref{tab:brute_force_matching_eval}, except for Bike and UBC date sets, the result of repeatability score for the rest data sets are significantly low. For instance, the repeatability for graffiti and bark data sets are around the 0.15 and also so many mismatch features are shown in \autoref{fig:brute_force_matching} (b) and \autoref{fig:brute_force_matching} (c). In the case of computational cost, the maximum amount is allocated to Boat data set because it has the highest number of feature points in this test. The time row of \autoref{tab:brute_force_matching_eval} illustrates that the computations time is proportional to the number of feature points that were detected by A-KAZE.
@@ -165,7 +176,7 @@ As you can see in \autoref{fig:brute_force_matching} and based on \autoref{tab:b
  \includegraphics[width=75mm]{figures/leuven_nn_1_3} &  \includegraphics[width=75mm]{figures/ubc_nn_1_3} \\
 (e) Leuven (light) & (f) UBC (JPEG compression) \\[6pt]
 \end{tabular}
-\caption{The nearest neighbor matching layer for different of image transformations}\label{fig:nearest_neighbor_matching}
+\caption{The nearest neighbor matching layer for all data sets}\label{fig:nearest_neighbor_matching}
 \end{figure}
 % TO: cumulative time
 
@@ -178,7 +189,7 @@ As you can see in \autoref{fig:brute_force_matching} and based on \autoref{tab:b
       repeatability score & 0.905165 & 0.564626 & 0.517615 & 0.71784 & 0.830882 & 0.979984\\ \hline
       cumulative time (ms) & 151.744 & 65.276 & 629.011 & 1682.89 & 121.847 & 527.787 \\ \hline
   \end{tabular}
-  \caption{nearest neighbor performance evaluation} \label{tab:nearest_neighbor_matching_eval}
+  \caption{Nearest neighbor performance evaluation} \label{tab:nearest_neighbor_matching_eval}
 \end{table}
 
 The repeatability score of \autoref{tab:nearest_neighbor_matching_eval} and \autoref{tab:brute_force_matching_eval} show the positive effect of nearest neighbor layer which is applied to the output matches of previous brute force layer. For all cases, repeatability score significantly increases and in some cases it is doubled. For example the repeatability of Bark data set reached to 0.56 whereas it was just 0.10 after the brute force matching. Furthermore, the repeatability for both Bike and UBC data sets have become more than 0.90. The time for all cases are similar to brute force matching. It means the nearest neighbor is a lightweight procedure and generally most of the time is spent at the brute force matching layer.
@@ -232,7 +243,7 @@ After applying the third layer, the symmetric matching layer, approximately all 
       repeatability score & 0.997024 & 0.921875 & 0.813725 & 0.96893 & 0.98705 & 0.999593 \\ \hline
       cumulative time (ms) & 152.601 & 67.302 & 641.804 & 1711.59 & 191.496 & 614.149 \\ \hline
   \end{tabular}
-  \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_eval}
+  \caption{Epiplar-constraint performance evaluation} \label{tab:epipolar_matching_eval}
 \end{table}
 
 The \autoref{fig:epipolar_matching} is the target result in our plan. The number of mismatch features reach to minimum. For instance just one error match and a repeatability score near the 100\% of accuracy obtained for UBC sample. Approximately in all cases the accuracy measure are more than 90\%. A comparison between the accuracy of epipolar show it gets 3 times better than the brute force match for data set Boat and Leuven. In the case of time also we have an overhead of 3 or 4 ms for epipolar matching layer.
@@ -248,7 +259,7 @@ As we mentioned in all above tests, we just included the first image with the be
   \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/wall_final_1_6}} \\
   \multicolumn{2}{c}{Wall (blur)} \\[6pt]
 \end{tabular}
-\caption{The wall data set for viewpoint transformation}\label{fig:epipolar_matching_wall}
+\caption{The Wall data set for viewpoint transformation}\label{fig:epipolar_matching_wall}
 \end{figure}
 
 \begin{table}[H]
@@ -258,7 +269,6 @@ As we mentioned in all above tests, we just included the first image with the be
       correspondences & 1870 & 899 & 283 & 41 & 8 \\ \hline
       correct matches & 1756 & 896 & 208 & 23 & 1 \\ \hline
       repeatability score & 0.939037 & 0.996663 & 0.734982 & 0.560976 & 0.125 \\ \hline
-      cumulative time (ms) & 1347.58 & 1287.7 & 1373.6 & 1275.73 & 1302.77 \\ \hline
   \end{tabular}
   \caption{Robust feature matching performance evaluation for all images in Wall data set} \label{tab:epipolar_matching_wall_eval}
 \end{table}
@@ -284,14 +294,23 @@ According to \autoref{fig:epipolar_matching_wall} and \autoref{tab:epipolar_matc
       correspondences & 1773 & 1247 & 734 & 392 & 193 \\ \hline
       correct matches & 1663 & 968 & 456 & 271 & 110 \\ \hline
       repeatability score & 0.937958 & 0.776263 & 0.621253 & 0.691327 & 0.569948 \\ \hline
-      cumulative time (ms) & 3938.41 & 4024.37 & 3426.66 & 2544.6 & 1850.59 \\ \hline
   \end{tabular}
-  \caption{Epiplar-Constraint performance evaluation} \label{tab:epipolar_matching_tree_eval}
+  \caption{Robust feature matching performance evaluation for all images in Tree data set} \label{tab:epipolar_matching_tree_eval}
 \end{table}
 
 The obtained result for Trees data set are similar to Wall data set. The repeatability score drops from first pair to the last pair because the difference between the images become more and consequently, detecting the correct matches between features gets more difficult. The correct matches for the last pair is 110 whereas the correct matches for the same pair of Wall was 1 feature. It shows that the wide viewpoint change is more complicated than the blur case. To solve this problem, it is better to take the images with shorter viewpoint change. 
 
+\pagebreak
 \subsection {Overall View}
+\autoref{fig:data_set_evaluation} illustartes the repeatibility score of each ground truth data sets after processing the layers of robust feature matching. As can be seen, the repeatibility score of all data sets have the increase tresnds from the firstt layer (Brute Force) to the ast layer (Epipolar Constraint). It means that in each layer, the outlier feature points are filtered correctly.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=140mm]{figures/data_set_evaluation}
+  \caption{The repeatability score of each data set after the processing of each layer}\label{fig:data_set_evaluation}
+\end{figure}
+
+\autoref{tab:repeatability_matching_statistic} and \autoref{fig:repeatability_matching_statistic} are a statistical analysis of each layer of robust feature matching. they show the average and standard devision of repeatability score of all data sets that are described in \autoref{fig:matching_dataset_oxford}. The mean of repeatability score has a growth path from 0.411198 to 0.948033 and the repeatability score increases in each layer. Furthermore, the standard devision, which represents the error around the average, decreases from 0.27 to 0.06. So both mean and standard devision show that the accuracy of each layer improves sequentially. This provides an evidence of efficiency of our approach.
 
 \begin{figure}[H]
   \centering
@@ -310,4 +329,3 @@ The obtained result for Trees data set are similar to Wall data set. The repeata
   \caption{The mean and standard deviation of repeatability score for all layers} \label{tab:repeatability_matching_statistic}
 \end{table}
 
-The \autoref{tab:repeatability_matching_statistic} and \autoref{fig:repeatability_matching_statistic} are a statistical analysis of each layer of robust feature matching. they show the average and standard devision of repeatability score of all data sets that are described in \autoref{fig:matching_dataset_oxford}. The mean of repeatability score has a growth path from 0.411198 to 0.948033 and the repeatability score increases in each layer. Furthermore, the standard devision, which represents the error around the average, decreases from 0.27 to 0.06. So both mean and standard devision show that the accuracy of each layer improves sequentially. This provides an evidence of efficiency of our approach.

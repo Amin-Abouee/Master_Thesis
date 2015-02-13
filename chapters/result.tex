@@ -41,12 +41,12 @@ This set consists of 80 sequential images that cover all three types of movement
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Feature-Based Approach & 1.3303 & 1.1184 & 0.0019 & 0.0015 \\ \hline
       Marker-Base Approach & 10.1552 & 0.9700 & 0.0040 & 0.0006 \\ \hline
   \end{tabular}
-  \caption{the statistical analysis of tracking error for both feature-based and marker-based techniques based on the first ground truth data set} \label{tab:sample_01}
+  \caption{The statistical analysis of tracking error for both feature-based and marker-based techniques based on the first ground truth data set} \label{tab:sample_01}
 \end{table}
 
 Based on both \autoref{fig:sample_01} and \autoref{tab:sample_01}, the tracking result of feature-based is significantly better than marker-based approach for both mean and standard deviation cases. In the case of rotation, the result of marker-less tracking is stable around the 0.0040 degree of quaternion whereas the rotation of feature-based is stable at first but it has a slow increase after the 60th frames. The peak in \autoref{fig:sample_01} (a) and (b) for the 7th image, are the consequence of image blurring. 
@@ -76,7 +76,7 @@ Based on the \autoref{tab:sample_01_diff}, you can see that the change of rotati
 \begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/frame_400/graph_translation} &  \includegraphics[width=80mm]{figures/frame_400/graph_rotation} \\
-(a) the translation error in millimeters & (b) the rotation error in quaternion degree \\[6pt]
+(a) The translation error & (b) The rotation error\\[6pt]
 \end{tabular}
 \caption{The tracking errors for both techniques based on the second ground truth data set}\label{fig:sample_02}
 \end{figure}
@@ -85,7 +85,7 @@ Based on the \autoref{tab:sample_01_diff}, you can see that the change of rotati
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Feature-Based Approach & 3.8357 & 2.4783 & 0.0063 & 0.0049 \\ \hline
       Marker-Based Approach & 7.0932 & 0.7227 & 0.0037 & 0.0011 \\ \hline
@@ -99,7 +99,7 @@ It might be the result of two things: observing a huge rotation that our pose es
 \begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/diff_400/graph_translation} &  \includegraphics[width=80mm]{figures/diff_400/graph_rotation} \\
-(a) difference of translation in milliliters & (b) difference of rotation in degree of quaternion \\[6pt]
+(a) Difference of translation & (b) Difference of rotation \\[6pt]
 \end{tabular}
 \caption{The difference between the Feature-based and Marker-based for each sequence pair of second sample data set}\label{fig:sample_02_diff}
 \end{figure}
@@ -121,7 +121,7 @@ The \autoref{tab:sample_02_diff} represent a comparison of difference of camera 
 \begin{figure}[H]
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/frame_600/graph_translation} &  \includegraphics[width=80mm]{figures/frame_600/graph_rotation} \\
-(a) translation & (b) rotation \\[6pt]
+(a) The translation error & (b) the rotation error \\[6pt]
 \end{tabular}
 \caption{The tracking errors for both feature-based and marker-based techniques based on the third ground truth data set}\label{fig:sample_03}
 \end{figure}
@@ -130,12 +130,12 @@ The \autoref{tab:sample_02_diff} represent a comparison of difference of camera 
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Feature-Based Approach & 3.5443 & 1.8751 & 0.0094 & 0.0063 \\ \hline
       Marker-Base Approach & 13.6084 & 1.6970 & 0.0058 & 0.0014 \\ \hline
   \end{tabular}
-  \caption{the statistical analysis of tracking error for both feature-based and marker-based techniques based on the second ground truth data set} \label{tab:sample_03}
+  \caption{The statistical analysis of tracking error for both feature-based and marker-based techniques based on the second ground truth data set} \label{tab:sample_03}
 \end{table}
 
 \autoref{tab:sample_03} and \autoref{fig:sample_03} show the result of comparison of translation and rotation errors with the ground truth for the third sample data set. These results prove that our idea about the replacing of 3D points in world map with the new one after each 35 frames was true. Let me to divide the \autoref{fig:sample_03}(a) into 3 parts. for the first seven bundles (frames 1 to 35), second seven bundles (from 36 to 70) and the rest. As you can see in \autoref{fig:sample_03}, the translation error in the first part (first seven bundles) is around the 2.5 millimeters. After that the inefficient results of the rotation that has a dramatical growth, cause the translation estimations also have a jump to the up and the mean of error is set around the 5.5 millimeters. But after the 70th frame and because the whole 3D points in world map are replaced with the new data, the local and global bundle adjustment could control the error of the translation for the next frames and bundles. In the case of rotation, once more is happened that rotation estimation and optimization are not efficient as well as the translation part.
@@ -167,7 +167,7 @@ In this test, we evaluate the performance of a parameter that describes the numb
 \centering
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/local/graph_translation} &   \includegraphics[width=80mm]{figures/local/graph_rotation}  \\
-  the translation error & the rotation error \\[6pt]
+  The translation error & The rotation error \\[6pt]
 \end{tabular}
 \caption{The translation and rotation error for marker-based Ubitrack method and feature-based with a variety of values for local threshold}\label{fig:test_local_threshold}
 \end{figure}
@@ -176,7 +176,7 @@ In this test, we evaluate the performance of a parameter that describes the numb
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Local Threshold = 3 & 4.5165 & 3.0451 & 0.0076 & 0.0054 \\ \hline
       Local Threshold = 5 & \textbf{1.3303} & 1.1184 & \textbf{0.0019} & 0.0015 \\ \hline
@@ -194,7 +194,7 @@ The next threshold in our approach is about the number of frames that we process
 \centering
 \begin{tabular}{cc}
   \includegraphics[width=80mm]{figures/global/graph_translation} &   \includegraphics[width=80mm]{figures/global/graph_rotation}  \\
-  the translation error & the rotation error \\[6pt]
+  The translation error & The rotation error \\[6pt]
 \end{tabular}
 \caption{}\label{fig:test_global_threshold}
 
@@ -203,7 +203,7 @@ The next threshold in our approach is about the number of frames that we process
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Global Threshold = 20 & 1.6392 & 1.3589 & 0.0034 & 0.0029 \\ \hline
       Global Threshold = 35 & \textbf{1.3303} & 1.1184 & \textbf{0.0019} & 0.0015 \\ \hline
@@ -233,7 +233,7 @@ Due to the error of rotation and its negative effect on the local and global bun
 \centering
   \begin{tabular}{| c || c | c | c | c |}
       \hline
-      & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
+       & \multicolumn{2}{c|}{Translation} & \multicolumn{2}{c|}{Rotation} \\ \hline
        & Mean & Standard Deviation & Mean & Standard Deviation \\ \hline
       Homography Matrix & 8.7867 & 5.9866 & 0.0135 & 0.0053 \\ \hline
       Reference System & \textbf{1.3303} & 1.1184 & \textbf{0.0019} & 0.0015 \\ \hline

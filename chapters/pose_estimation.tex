@@ -77,7 +77,7 @@ The result of the recursive robust feature matching function is a vector of robu
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/recursive_approach}
-  \caption{The schematic view of our recursive approach for extracting the elite feature points.} \label{fig:recursive_approach}
+  \caption{The schematic view of our recursive approach for extracting the elite feature points in abundle with size 5.} \label{fig:recursive_approach}
 \end{figure}
  
 These elite feature points and the camera pose of all frames are gathered to reconstruct a set of new 3D points of our environment. In Ubitrack, the \detokenize{Algorithm::get3DPositionWithResidual()} function is used for the 3D reconstruction. The size of the resulting 3D points is the same as the size of the elite feature points of each frame. 
@@ -132,7 +132,7 @@ The rest operation including: feature extraction, robust feature matching, recur
 \begin{figure}[H]
   \centering
   \includegraphics[angle=90, height=\textheight, keepaspectratio]{figures/bundle_second}
-  \caption{The data flow of two connected bundles}\label{fig:bundle_second}
+  \caption{The data flow of first and second bundles}\label{fig:bundle_second}
 \end{figure}
 
 \subsection{Updating the 3D points (world map)} \label{subsec:update_3d_points}
@@ -157,7 +157,7 @@ We call the total number of frames to be processed before replacement of the wor
 \begin{figure}[H]
   \centering
   \includegraphics[width=150mm]{figures/mapping}
-  \caption{The value of 3D world map vector after the five bundles}\label{fig:mapping_concept}
+  \caption{The value of 3D world map vector after the seven bundles}\label{fig:mapping_concept}
 \end{figure}
 
 \subsection{Summary} \label{subsec:summary}

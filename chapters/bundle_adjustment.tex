@@ -9,7 +9,7 @@ The general idea behind the BA is to minimize the reprojection error between the
 The complete mathematical background of BA is not subject of this master thesis. There are many libraries that have already implemented the bundle adjustment. In this master thesis, the cvsba \footnote{\url{http://www.uco.es/investiga/grupos/ava/node/39}}, which is an OpenCV wrapper for the well-known Sparse Bundle Adjustment (SBA) library, was ported to Ubitrack Framework. This bundle adjustment is used to refine the 3D Points that are estimated from mapping task of both marker-based and feature based techniques in Ubitrack. The chose of cvsba was mainly because of its compatibility with OpenCV and Ubitrack and furthermore, it showed the best result during our benchmarks.
 
 \section{cvsba}
-cvsba is an open source library for Sparse Bundle Adjustment (SBA) that is based on OpenCV\footnote{\url{http://www.uco.es/investiga/grupos/ava/node/39}}. It was implemented by Manolis Lourakis at Foundation for Research and Technology - Hellas in Heraklion, Crete, Greece. The main features of this BA are:
+cvsba is an open source library for Sparse Bundle Adjustment (SBA) that is based on OpenCV. It was implemented by Manolis Lourakis at Foundation for Research and Technology - Hellas in Heraklion, Crete, Greece. The main features of this BA are:
 \begin{itemize}
 \item Based on sba-1.6, one of the most popular and robust bundle adjustment implementation, which is extensively used and tested by the community
 \item sba installation is not needed since it is included in cvsba

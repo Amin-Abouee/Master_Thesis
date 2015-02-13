@@ -41,7 +41,7 @@ Currently, with the advances in the field of computer vision, many new technique
   \includegraphics[width=60mm]{figures/sift_dog} &  \includegraphics[width=50mm]{figures/sift_scale} \\
 (a) The SIFT Difference of Gaussian (DOG) & (b) The SIFT space scale and local extrema \\[6pt]
 \end{tabular}
-\caption{The SIFT feature detector patterns}   \label{fig:sift_detector}
+\caption{The SIFT feature detector} \label{fig:sift_detector}
 \end{figure}
 
 
@@ -69,7 +69,9 @@ Where L is the convolution of the Gaussian second order derivative with the imag
 % TODO: some methods support both feature detection and extraction but some one not
 
 \subsection{Feature Extraction} \label{subsec:feature_extraction}
-Once feature points are located, we describe (code) a patch which surrounds the feature point as the feature descriptor. The most well-known descriptor is SIFT: A 128-dimensional float vector is obtained from a grid of histogram. This feature descriptor is created by first computing the gradient magnitude and orientation at each image sample point in a region around the feature point location (\autoref{fig:sift_descriptor}(left)). These samples are then accumulated into orientation histograms summarizing the contents over 4 x 4 subregions (\autoref{fig:sift_descriptor}(right)). The computed descriptor is robust to illumination and change of view. The other approach that its feature detector algorithm was introduced is SURF. Its idea based on local gradient histogram and it has similar performance as SIFT. The advantage of SURF algorithm over SIFT is that it is faster with less memory. Both of these approaches describe a feature point with a vector of float numbers. The SIFT uses with 128-dimensional vector and SURF with 64 or 128-dimensional vector.
+Once feature points are located, we describe (code) a patch which surrounds the feature point as the feature descriptor. The most well-known descriptor is SIFT: A 128-dimensional float vector is obtained from a grid of histogram. This feature descriptor is created by first computing the gradient magnitude and orientation at each image sample point in a region around the feature point location (\autoref{fig:sift_descriptor}(left)). These samples are then accumulated into orientation histograms summarizing the contents over 4 x 4 subregions (\autoref{fig:sift_descriptor}(right)). The computed descriptor is robust to illumination and change of view. 
+
+The other approach that its feature detector algorithm was introduced is SURF. Its idea based on local gradient histogram and it has similar performance as SIFT. The advantage of SURF algorithm over SIFT is that it is faster with less memory. Both of these approaches describe a feature point with a vector of float numbers. The SIFT uses with 128-dimensional vector and SURF with 64 or 128-dimensional vector.
 
 \begin{figure}[H]
   \centering
@@ -77,7 +79,9 @@ Once feature points are located, we describe (code) a patch which surrounds the 
   \caption{The SIFT feature descriptor histogram}\label{fig:sift_descriptor}
 \end{figure}
 
-In 2010, Calonder \textit{et al.} in \cite{calonder2010brief} showed that it is possible to decrease the dimensionality of a feature descriptor by directly building a shorter binary descriptor in which all bits are pairwise independent. This new algorithm is called BRIEF. This approach is to define a test pattern (experiment indicates Gaussian distribution gives a good result) and is applied to the detected feature points. The lines in (\autoref{fig:brief_descriptor}) indicates a test pair, an output of either 1 or 0 is provided based on the intensity difference of the two pixels. A series of such test outputs a binary string, which is considered as the descriptor. Representing the feature descriptor as a binary vector has the advantage of using of Hamming distance (bitwise XOR) instead of Euclidean distance for matching of the descriptors. The negative point of BRIEF algorithm however is that the result descriptor is not invariant to scale and rotation changes. After the BRIEF, both BRISK \cite{leutenegger2011brisk} and FREAK \cite{alahi2012freak} were developed that are state-of-the-art algorithms that rely on binary descriptors and are also invariant to scale and rotation. \\
+In 2010, Calonder \textit{et al.} in \cite{calonder2010brief} showed that it is possible to decrease the dimensionality of a feature descriptor by directly building a shorter binary descriptor in which all bits are pairwise independent. This new algorithm is called BRIEF. This approach is to define a test pattern (experiment indicates Gaussian distribution gives a good result) and is applied to the detected feature points. The lines in (\autoref{fig:brief_descriptor}) indicates a test pair, an output of either 1 or 0 is provided based on the intensity difference of the two pixels. A series of such test outputs a binary string, which is considered as the descriptor. 
+
+Representing the feature descriptor as a binary vector has the advantage of using of Hamming distance (bitwise XOR) instead of Euclidean distance for matching of the descriptors. The negative point of BRIEF algorithm however is that the result descriptor is not invariant to scale and rotation changes. After the BRIEF, both BRISK \cite{leutenegger2011brisk} and FREAK \cite{alahi2012freak} were developed that are state-of-the-art algorithms that rely on binary descriptors and are also invariant to scale and rotation. 
 
 \begin{figure}[H]
   \centering
@@ -85,7 +89,7 @@ In 2010, Calonder \textit{et al.} in \cite{calonder2010brief} showed that it is 
   \caption{The BRIEF feature descriptor}\label{fig:brief_descriptor}
 \end{figure}
 
-BRISK is a 512 bit binary descriptor that computes the weighted Gaussian average over a selected pattern of points near the feature point. The pattern is designed as that $N$ locations are equally spaced on circles concentric with the feature point. For the formation of the rotation and scale normalized descriptor, BRISK applies the sampling pattern rotated by alpha around the feature point. The bit-vector descriptor is assembled by performing all the short-distance binary intensity comparisons of point pairs. \autoref{fig:brisk_descriptor} shows the pattern of brisk.\\
+BRISK is a 512 bit binary descriptor that computes the weighted Gaussian average over a selected pattern of points near the feature point. The pattern is designed as that $N$ locations are equally spaced on circles concentric with the feature point. For the formation of the rotation and scale normalized descriptor, BRISK applies the sampling pattern rotated by alpha around the feature point. The bit-vector descriptor is assembled by performing all the short-distance binary intensity comparisons of point pairs. \autoref{fig:brisk_descriptor} shows the pattern of brisk.
 
 \begin{figure}[H]
   \centering
@@ -131,7 +135,7 @@ As we mentioned in the description of A-KAZE, it uses two new algorithms (FED an
 \multicolumn{2}{c}{\includegraphics[width=75mm]{figures/blur_akaze} }\\
 \multicolumn{2}{c}{(e) Robustness to Blur}
 \end{tabular}
-\caption{The comparison between KAZE and A-KAZE}\label{fig:compare_kaze_and_A-kaze}
+\caption{The comparison between the A-KAZE, KAZE, BRISK and FREAK}\label{fig:compare_kaze_and_A-kaze}
 \end{figure}
 
 % TODO : add new test and combines with next paragraph.
