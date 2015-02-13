@@ -10,7 +10,7 @@ Tracking an object is a fundamental part of Augmented Reality (AR). Tracking mea
 
 \begin{itemize}
 \item 2D Tracking: Estimate a 2D transformation which describes the 3D displacement of the image projection of objects or parts of objects.
-\item 3D Tracking: Identify the camera rotation and translation relative to the scene. It contains 6 degrees of freedom for rotation and translation. \autoref{fig:pnp_sampel} shows the rotation and translation between the camera and world coordinate. \footnote{\url{http://docs.opencv.org/trunk/doc/tutorials/calib3d/real_time_pose/real_time_pose.html}}.
+\item 3D Tracking: Identify the camera rotation and translation relative to the scene. It contains 6 degrees of freedom for rotation and translation. For instance \autoref{fig:pnp_sampel} shows the rotation and translation between the camera and world coordinate. \footnote{\url{http://docs.opencv.org/trunk/doc/tutorials/calib3d/real_time_pose/real_time_pose.html}}.
 \end{itemize}
 
 \begin{figure}[H]
@@ -40,9 +40,23 @@ The key difference of PTAM algorithm compared to the simple SLAM and SFM is the 
 Likewise, after each mapping task, the obtained 3D points are optimized by a bundle adjustment that is called local bundle adjustment. Furthermore, after a long iteration, a global bundle adjustment is used to refine all points in 3D map. The result of PTAM compared to other approaches in this subject, is fast accurate and robust.
 
 \subsection{Ubitrack Framework} \label{sebsec:ubitrack}
-The Ubitrack Framework is an open source framework for Augmented Reality. It was developed by Fachgebiet Augmented Reality chair (FAR) of the computer science faculty at Technical University of Munich.
+The Ubitrack Framework \footnote {\url{http://campar.in.tum.de/UbiTrack/WebHome}} is an open source framework for Augmented Reality. It was developed by Fachgebiet Augmented Reality chair (FAR) of the computer science faculty at Technical University of Munich. The name Ubitrack is derived from Ubiquitous Tracking. This modular framework is based on two concepts:
+\begin{itemize} 
+\item Spatial Relationship Graph (SRG): in this concept, the objects are represented as a node and the spatial relation between them represented as a directed edges. The SRG graphs are used for designing a tracking scenario. The whole scenario can be represented as a graph with different nodes and the directed edges between them. Each edge in this concept has a type, direction of data flow, and a mode. 
+	\begin{itemize}
+		\item type: represents the type of data that pass over the edge. It can be an image, pose of camera, 2D feature point, a list of feature points, ... etc. It is also called a Measurement.
+		\item direction: represents the direction of data based on the source node. it can be specified as a input or output edge.
+		\item mode: is a parameters that is usually is used for synchronization between different data nodes. It can be specified as Pull, Push and Automatic.
+	\end{itemize}
+\item Data Flow Graph (DFG): is used for executing in the system. it s based on the Ubiquitous Tracking Query Language (UTQL). Each node of this graph, represents a component of the our system (e.g. a list of 2D feature points or an image) and the directed edge reprents a directed communication between two nodes. 
+\end{itemize}
 
-TODO: seven barth
+
+Dataflow graphs (DFG) model the flow of data inside the system and is described using the Ubiquitous Tracking Query Language (UTQL)[5]. Each node of the graph represents its own coordinate system (e.g. camera space vs. image space) and each edge represents a transformation from one coordinate system to the other. Additionally each node of the graph represents a component of the system and each edge represents the transmission of data from one component to another whereby the edges are always directed ones. Each kind of data is thereby represented as a separate edge and thus the amount of edges with the same direction between two nodes is not restricted to 1. The graph is also allowed to consist of distinct subgraphs.
+
+Spatial relationship graphs (SRG) provide a different view on this system[4]. Thereby each component is represented by a subgraph that consists of nodes and directed edges and this subgraph itself can consist of distinct subgraphs. These component subgraphs are named Spatial Relationship Graph Patterns (SRG Patterns for short) as in the general case they are not a runnable tracking system by themselves. The edges of these subgraphs are additionally labeled with types, the direction of data flow and a mode.
+The type specifies which kind of data (also called a Measurement) is represented by the edge and can for example be an image, 2D points, a pose, etc..
+The direction of data flow can either be Input or Output. Input specifies that the com- ponent expects this edge to be filled by another component and Output specifies the com- ponent fills the edge itself so that another component can consume the data. While an Input edge must be connected to another Output edge, an Output edge does not need to be connected to another Input edge.
 
 
 \section {Approach} \label{sec:approach}
